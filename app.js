@@ -8,14 +8,9 @@ const typer = [
     "Miljöträning"
 ];
 
-const soktyper = [
-    "Byggnadssök",
-    "Fordonssök",
-    "Områdessök",
-    "Bagagessök"
-];
 
 const fokus = {
+
     "Byggnadssök": [
         "Scanning",
         "Detaljsök",
@@ -64,9 +59,12 @@ const fokus = {
         "Lek i miljö",
         "Sök i miljö"
     ]
+
 };
 
+
 const miljoer = {
+
     "Byggnadssök": [
         "Butik",
         "Hus",
@@ -117,7 +115,9 @@ const miljoer = {
         "Varma/bullriga miljöer",
         "Parkering"
     ]
+
 };
+
 
 const preparat = [
     "Preparat 1",
@@ -125,157 +125,96 @@ const preparat = [
     "Preparat 3"
 ];
 
+
 const ingetPreparat = "Inget preparat";
 
 
-// ==============================
-// DATA
-// ==============================
-
-function normaliseraTraning(traning) {
-
-    if (!traning || typeof traning !== "object") {
-        return null;
-    }
-
-    const moment =
-        typeof traning.moment === "string"
-            ? traning.moment
-            : "";
-
-    let normaliseratFokus =
-        typeof traning.fokus === "string"
-            ? traning.fokus
-            : "";
-
-    // Rättar äldre stavning
-    normaliseratFokus =
-        normaliseratFokus.replace(
-            "Helhetssmoment/metod",
-            "Helhetsmoment/metod"
-        );
-
-    let normaliseratPreparat =
-        typeof traning.preparat === "string"
-            ? traning.preparat
-            : "";
-
-    // Gamla poster utan preparat får ett neutralt värde
-    if (!normaliseratPreparat) {
-        normaliseratPreparat = ingetPreparat;
-    }
-
-    // Icke-söktyper ska alltid ha Inget preparat
-    if (!soktyper.includes(moment)) {
-        normaliseratPreparat = ingetPreparat;
-    }
-
-    return {
-        id:
-            traning.id ||
-            crypto.randomUUID(),
-
-        datum:
-            typeof traning.datum === "string"
-                ? traning.datum
-                : "",
-
-        moment:
-            moment,
-
-        fokus:
-            normaliseratFokus,
-
-        miljo:
-            typeof traning.miljo === "string"
-                ? traning.miljo
-                : "",
-
-        preparat:
-            normaliseratPreparat,
-
-        tillampat:
-            typeof traning.tillampat === "string"
-                ? traning.tillampat
-                : "",
-
-        resultat:
-            typeof traning.resultat === "string"
-                ? traning.resultat
-                : "",
-
-        kommentar:
-            typeof traning.kommentar === "string"
-                ? traning.kommentar
-                : "",
-
-        svarighetsgrad:
-            typeof traning.svarighetsgrad === "string"
-                ? traning.svarighetsgrad
-                : ""
-    };
-}
-
+// ========================================
+// HÄMTAR TRÄNINGAR
+// ========================================
 
 function hamtaTraningar() {
 
-    let traningar = [];
-
-    try {
-
-        traningar =
-            JSON.parse(
-                localStorage.getItem("traningar")
-            ) || [];
-
-    } catch (error) {
-
-        console.error(
-            "Kunde inte läsa sparad träningsdata:",
-            error
-        );
-
-        return [];
-    }
+    const traningar = JSON.parse(
+        localStorage.getItem("traningar")
+    ) || [];
 
 
-    if (!Array.isArray(traningar)) {
-        return [];
-    }
+    traningar.forEach(function(traning) {
+
+        if (!traning.id) {
+            traning.id = crypto.randomUUID();
+        }
+
+    });
 
 
-    const normaliserade =
-        traningar
-            .map(normaliseraTraning)
-            .filter(function(traning) {
-                return traning !== null;
-            });
+    localStorage.setItem(
+        "traningar",
+        JSON.stringify(traningar)
+    );
 
 
-    const gammalData =
-        JSON.stringify(traningar);
+    return traningar;
 
-    const nyData =
-        JSON.stringify(normaliserade);
-
-
-    if (gammalData !== nyData) {
-
-        localStorage.setItem(
-            "traningar",
-            nyData
-        );
-
-    }
-
-
-    return normaliserade;
 }
 
+
+// ========================================
+// NORMALISERAR TRÄNING
+// ========================================
+
+function normaliseraTraning(traning) {
+
+    if (!traning.id) {
+        traning.id = crypto.randomUUID();
+    }
+
+
+    if (
+        traning.fokus ===
+        "Helhetssmoment/metod"
+    ) {
+
+        traning.fokus =
+            "Helhetsmoment/metod";
+
+    }
+
+
+    if (!traning.preparat) {
+
+        traning.preparat =
+            ingetPreparat;
+
+    }
+
+
+    if (
+        traning.moment === "Lydnad" ||
+        traning.moment === "Konsol" ||
+        traning.moment === "Miljöträning"
+    ) {
+
+        traning.preparat =
+            ingetPreparat;
+
+    }
+
+
+    return traning;
+
+}
+
+
+// ========================================
+// HÄMTAR FORMULÄRETS DATA
+// ========================================
 
 function hamtaFormular() {
 
     return {
+
         datum:
             document.getElementById("date").value,
 
@@ -298,42 +237,42 @@ function hamtaFormular() {
             document.getElementById("resultat").value,
 
         kommentar:
-            document
-                .getElementById("kommentar")
-                .value
-                .trim(),
+            document.getElementById("kommentar").value,
 
         svarighetsgrad:
             document.getElementById("svårighetsgrad").value
+
     };
+
 }
 
 
-// ==============================
-// FORMULÄR
-// ==============================
+// ========================================
+// FYLLER TYP-LISTAN
+// ========================================
 
-function fyllTypLista() {
-
-    const lista =
-        document.getElementById("moment");
-
-    lista.innerHTML = "";
+document.getElementById("moment").innerHTML = "";
 
 
-    typer.forEach(function(typ) {
+typer.forEach(function(typ) {
 
-        const option =
-            document.createElement("option");
+    const option =
+        document.createElement("option");
 
-        option.value = typ;
-        option.textContent = typ;
+    option.value = typ;
+    option.textContent = typ;
 
-        lista.appendChild(option);
 
-    });
-}
+    document
+        .getElementById("moment")
+        .appendChild(option);
 
+});
+
+
+// ========================================
+// UPPDATERAR FOKUS
+// ========================================
 
 function uppdateraFokus() {
 
@@ -343,27 +282,39 @@ function uppdateraFokus() {
     const fokusLista =
         document.getElementById("fokus");
 
+
     fokusLista.innerHTML = "";
 
 
-    (
-        fokus[valtMoment] || []
-    ).forEach(function(fokusAlternativ) {
+    if (!fokus[valtMoment]) {
+        return;
+    }
 
-        const option =
-            document.createElement("option");
 
-        option.value =
-            fokusAlternativ;
+    fokus[valtMoment].forEach(
+        function(fokusAlternativ) {
 
-        option.textContent =
-            fokusAlternativ;
+            const option =
+                document.createElement("option");
 
-        fokusLista.appendChild(option);
+            option.value =
+                fokusAlternativ;
 
-    });
+            option.textContent =
+                fokusAlternativ;
+
+
+            fokusLista.appendChild(option);
+
+        }
+    );
+
 }
 
+
+// ========================================
+// UPPDATERAR MILJÖ
+// ========================================
 
 function uppdateraMiljo() {
 
@@ -373,68 +324,39 @@ function uppdateraMiljo() {
     const miljoLista =
         document.getElementById("miljo");
 
+
     miljoLista.innerHTML = "";
 
 
-    (
-        miljoer[valtMoment] || []
-    ).forEach(function(miljoAlternativ) {
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            miljoAlternativ;
-
-        option.textContent =
-            miljoAlternativ;
-
-        miljoLista.appendChild(option);
-
-    });
-}
+    if (!miljoer[valtMoment]) {
+        return;
+    }
 
 
-function fyllPreparatLista() {
+    miljoer[valtMoment].forEach(
+        function(miljoAlternativ) {
 
-    const lista =
-        document.getElementById("preparat");
+            const option =
+                document.createElement("option");
 
-    lista.innerHTML = "";
+            option.value =
+                miljoAlternativ;
+
+            option.textContent =
+                miljoAlternativ;
 
 
-    const ingetOption =
-        document.createElement("option");
+            miljoLista.appendChild(option);
 
-    ingetOption.value =
-        ingetPreparat;
-
-    ingetOption.textContent =
-        ingetPreparat;
-
-    lista.appendChild(
-        ingetOption
+        }
     );
 
-
-    preparat.forEach(function(preparatAlternativ) {
-
-        const option =
-            document.createElement("option");
-
-        option.value =
-            preparatAlternativ;
-
-        option.textContent =
-            preparatAlternativ;
-
-        lista.appendChild(
-            option
-        );
-
-    });
 }
 
+
+// ========================================
+// UPPDATERAR PREPARAT
+// ========================================
 
 function uppdateraPreparat() {
 
@@ -445,11 +367,26 @@ function uppdateraPreparat() {
         document.getElementById("preparat");
 
 
-    const preparatArRelevant =
-        soktyper.includes(valtMoment);
+    preparatLista.innerHTML = "";
 
 
-    if (!preparatArRelevant) {
+    if (
+        valtMoment === "Lydnad" ||
+        valtMoment === "Konsol" ||
+        valtMoment === "Miljöträning"
+    ) {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            ingetPreparat;
+
+        option.textContent =
+            ingetPreparat;
+
+
+        preparatLista.appendChild(option);
 
         preparatLista.value =
             ingetPreparat;
@@ -458,6 +395,7 @@ function uppdateraPreparat() {
             true;
 
         return;
+
     }
 
 
@@ -465,143 +403,92 @@ function uppdateraPreparat() {
         false;
 
 
-    if (
-        !preparat.includes(
-            preparatLista.value
-        )
-    ) {
+    preparat.forEach(
+        function(preparatAlternativ) {
 
-        preparatLista.value =
-            ingetPreparat;
+            const option =
+                document.createElement("option");
 
-    }
+            option.value =
+                preparatAlternativ;
+
+            option.textContent =
+                preparatAlternativ;
+
+
+            preparatLista.appendChild(option);
+
+        }
+    );
+
 }
 
 
-function valideraFormular(traning) {
+// ========================================
+// TYP ÄNDRAS
+// ========================================
 
-    const fel = [];
+document
+    .getElementById("moment")
+    .addEventListener(
+        "change",
+        function() {
 
-
-    if (!traning.datum) {
-        fel.push("Datum");
-    }
-
-
-    if (!traning.moment) {
-        fel.push("Typ");
-    }
-
-
-    if (!traning.fokus) {
-        fel.push("Fokus");
-    }
-
-
-    if (!traning.miljo) {
-        fel.push("Miljö");
-    }
-
-
-    if (
-        soktyper.includes(
-            traning.moment
-        )
-    ) {
-
-        if (
-            !preparat.includes(
-                traning.preparat
-            )
-        ) {
-
-            fel.push(
-                "Ett riktigt preparat"
-            );
+            uppdateraFokus();
+            uppdateraMiljo();
+            uppdateraPreparat();
 
         }
-
-    } else {
-
-        if (
-            traning.preparat !==
-            ingetPreparat
-        ) {
-
-            fel.push(
-                "Preparat ska vara 'Inget preparat'"
-            );
-
-        }
-
-    }
+    );
 
 
-    if (!traning.tillampat) {
-        fel.push("Tillämpat?");
-    }
+// ========================================
+// STARTA LISTOR
+// ========================================
+
+uppdateraFokus();
+uppdateraMiljo();
+uppdateraPreparat();
 
 
-    if (!traning.resultat) {
-        fel.push("Resultat");
-    }
-
-
-    if (!traning.svarighetsgrad) {
-        fel.push("Svårighetsgrad");
-    }
-
-
-    if (fel.length > 0) {
-
-        alert(
-            "Kontrollera följande:\n\n" +
-            fel.join("\n")
-        );
-
-        return false;
-    }
-
-
-    return true;
-}
-
-
-// ==============================
-// NAVIGATION
-// ==============================
+// ========================================
+// BYTER VY
+// ========================================
 
 function visaVy(vy) {
 
-    const vyer = [
-        "start",
-        "ny-traning",
-        "loggbok",
-        "uppfoljning",
-        "installningar",
-        "traning-detalj"
-    ];
+    document
+        .getElementById("start")
+        .style.display = "none";
 
+    document
+        .getElementById("ny-traning")
+        .style.display = "none";
 
-    vyer.forEach(function(vyId) {
+    document
+        .getElementById("loggbok")
+        .style.display = "none";
 
-        document
-            .getElementById(vyId)
-            .style.display =
-            "none";
+    document
+        .getElementById("uppfoljning")
+        .style.display = "none";
 
-    });
+    document
+        .getElementById("installningar")
+        .style.display = "none";
+
+    document
+        .getElementById("traning-detalj")
+        .style.display = "none";
 
 
     document
         .getElementById(vy)
-        .style.display =
-        "block";
+        .style.display = "block";
 
 
     if (vy === "loggbok") {
 
-        uppdateraLoggboksFilter();
         visaLoggbok();
 
     }
@@ -613,12 +500,16 @@ function visaVy(vy) {
         visaUppfoljning();
 
     }
+
 }
 
 
-// ==============================
-// SPARA
-// ==============================
+visaVy("start");
+
+
+// ========================================
+// SPARA / REDIGERA TRÄNING
+// ========================================
 
 document
     .getElementById("spara")
@@ -626,19 +517,11 @@ document
         "click",
         function() {
 
-            const traning =
+            let traning =
                 hamtaFormular();
 
-
-            if (
-                !valideraFormular(
-                    traning
-                )
-            ) {
-
-                return;
-
-            }
+            traning =
+                normaliseraTraning(traning);
 
 
             let traningar =
@@ -651,9 +534,9 @@ document
                 );
 
 
-            if (
-                redigerarId !== null
-            ) {
+            // REDIGERAR
+
+            if (redigerarId !== null) {
 
                 const index =
                     traningar.findIndex(
@@ -668,36 +551,21 @@ document
                     );
 
 
-                if (
-                    index === -1
-                ) {
+                if (index !== -1) {
 
-                    alert(
-                        "Träningen kunde inte hittas."
+                    traning.id =
+                        redigerarId;
+
+                    traningar[index] =
+                        traning;
+
+
+                    localStorage.setItem(
+                        "traningar",
+                        JSON.stringify(traningar)
                     );
 
-                    localStorage.removeItem(
-                        "redigerarId"
-                    );
-
-                    return;
                 }
-
-
-                traning.id =
-                    redigerarId;
-
-
-                traningar[index] =
-                    traning;
-
-
-                localStorage.setItem(
-                    "traningar",
-                    JSON.stringify(
-                        traningar
-                    )
-                );
 
 
                 localStorage.removeItem(
@@ -705,13 +573,14 @@ document
                 );
 
 
-                visaVy(
-                    "loggbok"
-                );
+                visaVy("loggbok");
 
                 return;
+
             }
 
+
+            // SKAPAR NY
 
             traning.id =
                 crypto.randomUUID();
@@ -724,318 +593,19 @@ document
 
             localStorage.setItem(
                 "traningar",
-                JSON.stringify(
-                    traningar
-                )
+                JSON.stringify(traningar)
             );
 
 
-            visaVy(
-                "loggbok"
-            );
+            visaVy("loggbok");
 
         }
     );
 
 
-// ==============================
-// LOGGBOK
-// ==============================
-
-function hamtaLoggboksFilter() {
-
-    return {
-
-        sok:
-            document
-                .getElementById("loggbok-sok")
-                .value
-                .trim()
-                .toLowerCase(),
-
-        typ:
-            document
-                .getElementById("loggbok-typ")
-                .value,
-
-        fokus:
-            document
-                .getElementById("loggbok-fokus")
-                .value,
-
-        miljo:
-            document
-                .getElementById("loggbok-miljo")
-                .value,
-
-        preparat:
-            document
-                .getElementById("loggbok-preparat")
-                .value
-
-    };
-}
-
-
-function filtreraLoggbok(
-    traning,
-    filter
-) {
-
-    const soktext = [
-
-        traning.datum,
-
-        traning.moment,
-
-        traning.fokus,
-
-        traning.miljo,
-
-        traning.preparat,
-
-        traning.tillampat,
-
-        traning.resultat,
-
-        traning.svarighetsgrad,
-
-        traning.kommentar
-
-    ]
-        .join(" ")
-        .toLowerCase();
-
-
-    if (
-        filter.sok &&
-        !soktext.includes(
-            filter.sok
-        )
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        filter.typ &&
-        traning.moment !==
-            filter.typ
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        filter.fokus &&
-        traning.fokus !==
-            filter.fokus
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        filter.miljo &&
-        traning.miljo !==
-            filter.miljo
-    ) {
-
-        return false;
-
-    }
-
-
-    if (
-        filter.preparat &&
-        traning.preparat !==
-            filter.preparat
-    ) {
-
-        return false;
-
-    }
-
-
-    return true;
-}
-
-
-function uppdateraLoggboksFilter() {
-
-    const typLista =
-        document.getElementById(
-            "loggbok-typ"
-        );
-
-    const fokusLista =
-        document.getElementById(
-            "loggbok-fokus"
-        );
-
-    const miljoLista =
-        document.getElementById(
-            "loggbok-miljo"
-        );
-
-
-    if (
-        !typLista ||
-        !fokusLista ||
-        !miljoLista
-    ) {
-
-        return;
-
-    }
-
-
-    const valtTyp =
-        typLista.value;
-
-
-    const tidigareFokus =
-        fokusLista.value;
-
-
-    const tidigareMiljo =
-        miljoLista.value;
-
-
-    fokusLista.innerHTML =
-        '<option value="">Alla fokus</option>';
-
-
-    miljoLista.innerHTML =
-        '<option value="">Alla miljöer</option>';
-
-
-    fokusLista.disabled =
-        !valtTyp;
-
-
-    miljoLista.disabled =
-        !valtTyp;
-
-
-    if (!valtTyp) {
-
-        return;
-
-    }
-
-
-    (
-        fokus[valtTyp] || []
-    ).forEach(function(fokusAlternativ) {
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-        option.value =
-            fokusAlternativ;
-
-        option.textContent =
-            fokusAlternativ;
-
-        fokusLista.appendChild(
-            option
-        );
-
-    });
-
-
-    (
-        miljoer[valtTyp] || []
-    ).forEach(function(miljoAlternativ) {
-
-        const option =
-            document.createElement(
-                "option"
-            );
-
-        option.value =
-            miljoAlternativ;
-
-        option.textContent =
-            miljoAlternativ;
-
-        miljoLista.appendChild(
-            option
-        );
-
-    });
-
-
-    if (
-        [...fokusLista.options].some(
-            function(option) {
-
-                return (
-                    option.value ===
-                    tidigareFokus
-                );
-
-            }
-        )
-    ) {
-
-        fokusLista.value =
-            tidigareFokus;
-
-    }
-
-
-    if (
-        [...miljoLista.options].some(
-            function(option) {
-
-                return (
-                    option.value ===
-                    tidigareMiljo
-                );
-
-            }
-        )
-    ) {
-
-        miljoLista.value =
-            tidigareMiljo;
-
-    }
-}
-
-
-function rensaLoggboksFilter() {
-
-    document.getElementById(
-        "loggbok-sok"
-    ).value = "";
-
-
-    document.getElementById(
-        "loggbok-typ"
-    ).value = "";
-
-
-    document.getElementById(
-        "loggbok-preparat"
-    ).value = "";
-
-
-    uppdateraLoggboksFilter();
-
-    visaLoggbok();
-}
-
+// ========================================
+// VISA LOGGBOK
+// ========================================
 
 function visaLoggbok() {
 
@@ -1064,50 +634,17 @@ function visaLoggbok() {
     );
 
 
-    const filter =
-        hamtaLoggboksFilter();
-
-
-    const filtrerade =
-        traningar.filter(
-            function(traning) {
-
-                return filtreraLoggbok(
-                    traning,
-                    filter
-                );
-
-            }
-        );
-
-
-    const resultatText =
-        document.getElementById(
-            "loggbok-resultat"
-        );
-
-
-    resultatText.textContent =
-        filtrerade.length +
-        " av " +
-        traningar.length +
-        " träningspass";
-
-
-    if (
-        filtrerade.length ===
-        0
-    ) {
+    if (traningar.length === 0) {
 
         lista.innerHTML =
-            "<p>Inga träningspass matchar filtreringen.</p>";
+            "<p>Inga träningspass ännu.</p>";
 
         return;
 
     }
 
 
-    filtrerade.forEach(
+    traningar.forEach(
         function(traning) {
 
             const kort =
@@ -1116,37 +653,8 @@ function visaLoggbok() {
                 );
 
 
-            kort.innerHTML = `
-                <h3>${traning.datum}</h3>
-
-                <p>
-                    <strong>
-                        ${traning.moment}
-                    </strong>
-                </p>
-
-                <p>
-                    ${traning.fokus} ·
-                    ${traning.miljo}
-                </p>
-
-                <p>
-                    Preparat:
-                    ${traning.preparat || "Inget preparat"}
-                </p>
-
-                <p>
-                    Resultat:
-                    ${traning.resultat}
-                    ·
-                    Svårighetsgrad:
-                    ${traning.svarighetsgrad}
-                </p>
-
-                <p>
-                    ${traning.kommentar}
-                </p>
-            `;
+            kort.className =
+                "traning";
 
 
             kort.addEventListener(
@@ -1161,71 +669,32 @@ function visaLoggbok() {
             );
 
 
+            kort.innerHTML = `
+
+                <h3>
+                    ${traning.moment}
+                </h3>
+
+                <p>
+                    ${traning.datum}
+                </p>
+
+            `;
+
+
             lista.appendChild(
                 kort
             );
 
         }
     );
+
 }
 
 
-document
-    .getElementById("loggbok-sok")
-    .addEventListener(
-        "input",
-        visaLoggbok
-    );
-
-
-document
-    .getElementById("loggbok-typ")
-    .addEventListener(
-        "change",
-        function() {
-
-            uppdateraLoggboksFilter();
-            visaLoggbok();
-
-        }
-    );
-
-
-document
-    .getElementById("loggbok-fokus")
-    .addEventListener(
-        "change",
-        visaLoggbok
-    );
-
-
-document
-    .getElementById("loggbok-miljo")
-    .addEventListener(
-        "change",
-        visaLoggbok
-    );
-
-
-document
-    .getElementById("loggbok-preparat")
-    .addEventListener(
-        "change",
-        visaLoggbok
-    );
-
-
-document
-    .getElementById("loggbok-rensa")
-    .addEventListener(
-        "click",
-        rensaLoggboksFilter
-    );
-
-
-// ==============================
-// DETALJER
-// ==============================
+// ========================================
+// VISA TRÄNINGSDETALJER
+// ========================================
 
 function visaDetaljer(id) {
 
@@ -1237,18 +706,14 @@ function visaDetaljer(id) {
         traningar.find(
             function(item) {
 
-                return (
-                    item.id === id
-                );
+                return item.id === id;
 
             }
         );
 
 
     if (!traning) {
-
         return;
-
     }
 
 
@@ -1265,7 +730,10 @@ function visaDetaljer(id) {
 
 
     innehall.innerHTML = `
-        <h3>${traning.datum}</h3>
+
+        <h3>
+            ${traning.datum}
+        </h3>
 
         <p>
             <strong>Typ:</strong>
@@ -1303,21 +771,24 @@ function visaDetaljer(id) {
         </p>
 
         <p>
-            <strong>Kommentar:</strong><br>
-            ${traning.kommentar || "Ingen kommentar"}
+            <strong>Kommentar:</strong>
+            <br>
+            ${traning.kommentar}
         </p>
+
     `;
 
 
     visaVy(
         "traning-detalj"
     );
+
 }
 
 
-// ==============================
-// REDIGERA
-// ==============================
+// ========================================
+// REDIGERA TRÄNING
+// ========================================
 
 document
     .getElementById("redigera")
@@ -1339,30 +810,26 @@ document
                 traningar.find(
                     function(item) {
 
-                        return (
-                            item.id === id
-                        );
+                        return item.id === id;
 
                     }
                 );
 
 
             if (!traning) {
-
                 return;
-
             }
 
 
-            document.getElementById(
-                "date"
-            ).value =
+            document
+                .getElementById("date")
+                .value =
                 traning.datum;
 
 
-            document.getElementById(
-                "moment"
-            ).value =
+            document
+                .getElementById("moment")
+                .value =
                 traning.moment;
 
 
@@ -1371,64 +838,46 @@ document
             uppdateraPreparat();
 
 
-            document.getElementById(
-                "fokus"
-            ).value =
+            document
+                .getElementById("fokus")
+                .value =
                 traning.fokus;
 
 
-            document.getElementById(
-                "miljo"
-            ).value =
+            document
+                .getElementById("miljo")
+                .value =
                 traning.miljo;
 
 
-            if (
-                soktyper.includes(
-                    traning.moment
-                )
-            ) {
-
-                document.getElementById(
-                    "preparat"
-                ).value =
-                    preparat.includes(
-                        traning.preparat
-                    )
-                        ? traning.preparat
-                        : ingetPreparat;
-
-            } else {
-
-                document.getElementById(
-                    "preparat"
-                ).value =
-                    ingetPreparat;
-
-            }
+            document
+                .getElementById("preparat")
+                .value =
+                traning.preparat ||
+                ingetPreparat;
 
 
-            document.getElementById(
-                "tillampat"
-            ).value =
+            document
+                .getElementById("tillampat")
+                .value =
                 traning.tillampat;
 
 
-            document.getElementById(
-                "resultat"
-            ).value =
+            document
+                .getElementById("resultat")
+                .value =
                 traning.resultat;
 
 
-            document.getElementById(
-                "svårighetsgrad"
-            ).value =
+            document
+                .getElementById("svårighetsgrad")
+                .value =
                 traning.svarighetsgrad;
 
 
-            document.getElementById(
-                "kommentar"
-            ).value =
+            document
+                .getElementById("kommentar")
+                .value =
                 traning.kommentar;
 
 
@@ -1440,9 +889,9 @@ document
     );
 
 
-// ==============================
-// RADERA
-// ==============================
+// ========================================
+// RADERA TRÄNING
+// ========================================
 
 document
     .getElementById("radera")
@@ -1457,9 +906,7 @@ document
 
 
             if (!bekräfta) {
-
                 return;
-
             }
 
 
@@ -1478,8 +925,7 @@ document
                     function(traning) {
 
                         return (
-                            traning.id !==
-                            id
+                            traning.id !== id
                         );
 
                     }
@@ -1488,9 +934,7 @@ document
 
             localStorage.setItem(
                 "traningar",
-                JSON.stringify(
-                    traningar
-                )
+                JSON.stringify(traningar)
             );
 
 
@@ -1499,17 +943,15 @@ document
             );
 
 
-            visaVy(
-                "loggbok"
-            );
+            visaVy("loggbok");
 
         }
     );
 
 
-// ==============================
-// EXPORT
-// ==============================
+// ========================================
+// EXPORTERA
+// ========================================
 
 document
     .getElementById("exportera")
@@ -1518,18 +960,14 @@ document
         function() {
 
             const traningar =
-                hamtaTraningar();
+                localStorage.getItem(
+                    "traningar"
+                );
 
 
             const fil =
                 new Blob(
-                    [
-                        JSON.stringify(
-                            traningar,
-                            null,
-                            2
-                        )
-                    ],
+                    [traningar],
                     {
                         type:
                             "application/json"
@@ -1552,19 +990,12 @@ document
             länk.href =
                 url;
 
+
             länk.download =
                 "hundtraning-backup.json";
 
 
-            document.body.appendChild(
-                länk
-            );
-
-
             länk.click();
-
-
-            länk.remove();
 
 
             URL.revokeObjectURL(
@@ -1575,9 +1006,9 @@ document
     );
 
 
-// ==============================
-// IMPORT
-// ==============================
+// ========================================
+// IMPORTERA
+// ========================================
 
 document
     .getElementById("importera")
@@ -1586,9 +1017,7 @@ document
         function() {
 
             document
-                .getElementById(
-                    "import-fil"
-                )
+                .getElementById("import-fil")
                 .click();
 
         }
@@ -1606,9 +1035,7 @@ document
 
 
             if (!fil) {
-
                 return;
-
             }
 
 
@@ -1621,7 +1048,7 @@ document
 
                     try {
 
-                        const importeradData =
+                        const traningar =
                             JSON.parse(
                                 lasare.result
                             );
@@ -1629,7 +1056,7 @@ document
 
                         if (
                             !Array.isArray(
-                                importeradData
+                                traningar
                             )
                         ) {
 
@@ -1640,62 +1067,85 @@ document
                         }
 
 
-                        const normaliserade =
-                            importeradData
-                                .map(
-                                    normaliseraTraning
-                                )
-                                .filter(
-                                    function(traning) {
+                        const giltigData =
+                            traningar.every(
+                                function(traning) {
 
-                                        return (
-                                            traning !==
-                                            null
-                                        );
+                                    return (
 
-                                    }
-                                );
+                                        typeof traning ===
+                                            "object" &&
+
+                                        traning !== null &&
+
+                                        "datum" in
+                                            traning &&
+
+                                        "moment" in
+                                            traning &&
+
+                                        "fokus" in
+                                            traning &&
+
+                                        "miljo" in
+                                            traning &&
+
+                                        "tillampat" in
+                                            traning &&
+
+                                        "resultat" in
+                                            traning &&
+
+                                        "kommentar" in
+                                            traning &&
+
+                                        "svarighetsgrad" in
+                                            traning
+
+                                    );
+
+                                }
+                            );
 
 
-                        if (
-                            normaliserade.length ===
-                                0 &&
-                            importeradData.length >
-                                0
-                        ) {
+                        if (!giltigData) {
 
                             throw new Error(
-                                "Inga giltiga träningsposter hittades."
+                                "Filen innehåller ogiltiga träningsdata."
                             );
 
                         }
 
 
+                        traningar.forEach(
+                            function(traning) {
+
+                                normaliseraTraning(
+                                    traning
+                                );
+
+                            }
+                        );
+
+
                         localStorage.setItem(
                             "traningar",
                             JSON.stringify(
-                                normaliserade
+                                traningar
                             )
                         );
 
 
                         alert(
-                            "Data importerad!\n\n" +
-                            normaliserade.length +
-                            " träningsposter importerades."
+                            "Data importerad!"
                         );
 
 
                         event.target.value =
                             "";
 
-
-                        visaVy(
-                            "loggbok"
-                        );
-
-
-                    } catch (error) {
+                    }
+                    catch (error) {
 
                         alert(
                             "Importen misslyckades.\n\n" +
@@ -1718,6 +1168,7 @@ document
                         "Det gick inte att läsa filen."
                     );
 
+
                     event.target.value =
                         "";
 
@@ -1732,1002 +1183,21 @@ document
     );
 
 
-// ==============================
-// NIVÅSYSTEM
-// ==============================
+// ========================================
+// FORMATERA DATUM
+// ========================================
 
-function skapaKombinationer() {
+function formateraDatum(datum) {
 
-    const kombinationer = [];
+    return datum ||
+        "Aldrig tränat";
 
-
-    typer.forEach(
-        function(typ) {
-
-            const fokusForTyp =
-                fokus[typ] || [];
-
-
-            const miljoerForTyp =
-                miljoer[typ] || [];
-
-
-            fokusForTyp.forEach(
-                function(fokusAlternativ) {
-
-                    miljoerForTyp.forEach(
-                        function(miljoAlternativ) {
-
-                            kombinationer.push({
-
-                                typ:
-                                    typ,
-
-                                fokus:
-                                    fokusAlternativ,
-
-                                miljo:
-                                    miljoAlternativ
-
-                            });
-
-                        }
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-    return kombinationer;
 }
 
 
-function raknaTraningspoang(traning) {
-
-    const resultatPoang = {
-
-        "Misslyckad": 1,
-
-        "Behöver repeteras": 2,
-
-        "Tränad": 4,
-
-        "Godkänd": 5
-
-    };
-
-
-    const svarighetsPoang = {
-
-        "Lätt": 1,
-
-        "Mellan": 3,
-
-        "Svår": 5
-
-    };
-
-
-    const resultat =
-        resultatPoang[
-            traning.resultat
-        ];
-
-
-    const svarighet =
-        svarighetsPoang[
-            traning.svarighetsgrad
-        ];
-
-
-    if (
-        resultat === undefined ||
-        svarighet === undefined
-    ) {
-
-        return null;
-
-    }
-
-
-    return (
-        (resultat * 0.6) +
-        (svarighet * 0.4)
-    );
-}
-
-
-function raknaNiva(
-    typ,
-    valtFokus,
-    valdMiljo
-) {
-
-    const matchandeTraningar =
-        hamtaTraningar()
-            .filter(
-                function(traning) {
-
-                    return (
-                        traning.moment ===
-                            typ &&
-                        traning.fokus ===
-                            valtFokus &&
-                        traning.miljo ===
-                            valdMiljo
-                    );
-
-                }
-            );
-
-
-    if (
-        matchandeTraningar.length ===
-        0
-    ) {
-
-        return null;
-
-    }
-
-
-    matchandeTraningar.sort(
-        function(a, b) {
-
-            return (
-                new Date(b.datum) -
-                new Date(a.datum)
-            );
-
-        }
-    );
-
-
-    const senaste =
-        matchandeTraningar.slice(
-            0,
-            5
-        );
-
-
-    const poang =
-        senaste
-            .map(
-                function(traning) {
-
-                    return (
-                        raknaTraningspoang(
-                            traning
-                        )
-                    );
-
-                }
-            )
-            .filter(
-                function(poang) {
-
-                    return (
-                        poang !== null
-                    );
-
-                }
-            );
-
-
-    if (
-        poang.length ===
-        0
-    ) {
-
-        return null;
-
-    }
-
-
-    const summa =
-        poang.reduce(
-            function(
-                total,
-                aktuellPoang
-            ) {
-
-                return (
-                    total +
-                    aktuellPoang
-                );
-
-            },
-            0
-        );
-
-
-    return (
-        summa /
-        poang.length
-    );
-}
-
-
-function hamtaNiva(
-    typ,
-    valtFokus,
-    valdMiljo
-) {
-
-    const matchandeTraningar =
-        hamtaTraningar()
-            .filter(
-                function(traning) {
-
-                    return (
-                        traning.moment ===
-                            typ &&
-                        traning.fokus ===
-                            valtFokus &&
-                        traning.miljo ===
-                            valdMiljo
-                    );
-
-                }
-            );
-
-
-    if (
-        matchandeTraningar.length ===
-        0
-    ) {
-
-        return null;
-
-    }
-
-
-    const poang =
-        raknaNiva(
-            typ,
-            valtFokus,
-            valdMiljo
-        );
-
-
-    if (
-        poang === null
-    ) {
-
-        return null;
-
-    }
-
-
-    if (
-        poang >= 4.5 &&
-        matchandeTraningar.length >= 3
-    ) {
-
-        return 5;
-
-    }
-
-
-    if (
-        poang >= 3.5
-    ) {
-
-        return 4;
-
-    }
-
-
-    if (
-        poang >= 3.0
-    ) {
-
-        return 3;
-
-    }
-
-
-    if (
-        poang >= 2.0
-    ) {
-
-        return 2;
-
-    }
-
-
-    return 1;
-}
-
-
-function hamtaNivaFarg(niva) {
-
-    if (
-        niva === null
-    ) {
-
-        return null;
-
-    }
-
-
-    if (
-        niva <= 2
-    ) {
-
-        return "röd";
-
-    }
-
-
-    if (
-        niva === 3
-    ) {
-
-        return "gul";
-
-    }
-
-
-    if (
-        niva === 4
-    ) {
-
-        return "grön";
-
-    }
-
-
-    if (
-        niva === 5
-    ) {
-
-        return "blå";
-
-    }
-
-
-    return null;
-}
-
-
-function skapaUppfoljningsData() {
-
-    const traningar =
-        hamtaTraningar();
-
-
-    return skapaKombinationer()
-        .map(
-            function(kombination) {
-
-                const matchandeTraningar =
-                    traningar.filter(
-                        function(traning) {
-
-                            return (
-                                traning.moment ===
-                                    kombination.typ &&
-                                traning.fokus ===
-                                    kombination.fokus &&
-                                traning.miljo ===
-                                    kombination.miljo
-                            );
-
-                        }
-                    );
-
-
-                const niva =
-                    hamtaNiva(
-                        kombination.typ,
-                        kombination.fokus,
-                        kombination.miljo
-                    );
-
-
-                let senaste =
-                    null;
-
-
-                if (
-                    matchandeTraningar.length >
-                    0
-                ) {
-
-                    matchandeTraningar.sort(
-                        function(a, b) {
-
-                            return (
-                                new Date(b.datum) -
-                                new Date(a.datum)
-                            );
-
-                        }
-                    );
-
-
-                    senaste =
-                        matchandeTraningar[0].datum;
-
-                }
-
-
-                return {
-
-                    typ:
-                        kombination.typ,
-
-                    fokus:
-                        kombination.fokus,
-
-                    miljo:
-                        kombination.miljo,
-
-                    niva:
-                        niva,
-
-                    farg:
-                        hamtaNivaFarg(
-                            niva
-                        ),
-
-                    senaste:
-                        senaste,
-
-                    antalTraning:
-                        matchandeTraningar.length
-
-                };
-
-            }
-        );
-}
-
-
-function raknaLageFranData(data) {
-
-    let rod = 0;
-    let gul = 0;
-    let gron = 0;
-    let bla = 0;
-    let otränad = 0;
-
-
-    data.forEach(
-        function(kombination) {
-
-            if (
-                kombination.farg ===
-                "röd"
-            ) {
-
-                rod++;
-
-            }
-
-
-            if (
-                kombination.farg ===
-                "gul"
-            ) {
-
-                gul++;
-
-            }
-
-
-            if (
-                kombination.farg ===
-                "grön"
-            ) {
-
-                gron++;
-
-            }
-
-
-            if (
-                kombination.farg ===
-                "blå"
-            ) {
-
-                bla++;
-
-            }
-
-
-            if (
-                kombination.antalTraning ===
-                0
-            ) {
-
-                otränad++;
-
-            }
-
-        }
-    );
-
-
-    return {
-
-        rod:
-            rod,
-
-        gul:
-            gul,
-
-        gron:
-            gron,
-
-        bla:
-            bla,
-
-        otränad:
-            otränad,
-
-        totalt:
-            data.length
-
-    };
-}
-
-
-// ==============================
-// PREPARATSTATISTIK
-// ==============================
-
-function hamtaPreparatStatistik() {
-
-    const traningar =
-        hamtaTraningar();
-
-
-    return preparat.map(
-        function(preparatNamn) {
-
-            const traningarMedPreparat =
-                traningar.filter(
-                    function(traning) {
-
-                        return (
-                            traning.preparat ===
-                                preparatNamn &&
-                            soktyper.includes(
-                                traning.moment
-                            )
-                        );
-
-                    }
-                );
-
-
-            let senaste =
-                null;
-
-
-            if (
-                traningarMedPreparat.length >
-                0
-            ) {
-
-                traningarMedPreparat.sort(
-                    function(a, b) {
-
-                        return (
-                            new Date(b.datum) -
-                            new Date(a.datum)
-                        );
-
-                    }
-                );
-
-
-                senaste =
-                    traningarMedPreparat[0]
-                        .datum;
-
-            }
-
-
-            const perSoktyp = {};
-
-
-            soktyper.forEach(
-                function(soktyp) {
-
-                    const traningarForSoktyp =
-                        traningarMedPreparat
-                            .filter(
-                                function(traning) {
-
-                                    return (
-                                        traning.moment ===
-                                        soktyp
-                                    );
-
-                                }
-                            );
-
-
-                    let senasteForSoktyp =
-                        null;
-
-
-                    if (
-                        traningarForSoktyp.length >
-                        0
-                    ) {
-
-                        traningarForSoktyp.sort(
-                            function(a, b) {
-
-                                return (
-                                    new Date(b.datum) -
-                                    new Date(a.datum)
-                                );
-
-                            }
-                        );
-
-
-                        senasteForSoktyp =
-                            traningarForSoktyp[0]
-                                .datum;
-
-                    }
-
-
-                    perSoktyp[soktyp] = {
-
-                        antal:
-                            traningarForSoktyp.length,
-
-                        senaste:
-                            senasteForSoktyp
-
-                    };
-
-                }
-            );
-
-
-            return {
-
-                preparat:
-                    preparatNamn,
-
-                totalt:
-                    traningarMedPreparat.length,
-
-                senaste:
-                    senaste,
-
-                perSoktyp:
-                    perSoktyp
-
-            };
-
-        }
-    );
-}
-
-
-// ==============================
-// UTVECKLING
-// ==============================
-
-function hamtaUtvecklingOverTid(
-    traningData,
-    valtTyp,
-    valtFokus,
-    valdMiljo
-) {
-
-    const idag =
-        new Date();
-
-
-    const resultat = [];
-
-
-    for (
-        let i = 5;
-        i >= 0;
-        i--
-    ) {
-
-        const datum =
-            new Date(
-                idag.getFullYear(),
-                idag.getMonth() - i,
-                1
-            );
-
-
-        const ar =
-            datum.getFullYear();
-
-
-        const manad =
-            datum.getMonth();
-
-
-        const manadensTraningar =
-            traningData.filter(
-                function(traning) {
-
-                    if (
-                        !traning.datum
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    const traningsDatum =
-                        new Date(
-                            traning.datum +
-                            "T00:00:00"
-                        );
-
-
-                    if (
-                        traningsDatum
-                            .getFullYear() !==
-                            ar ||
-                        traningsDatum
-                            .getMonth() !==
-                            manad
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    if (
-                        valtTyp &&
-                        traning.moment !==
-                            valtTyp
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    if (
-                        valtFokus &&
-                        traning.fokus !==
-                            valtFokus
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    if (
-                        valdMiljo &&
-                        traning.miljo !==
-                            valdMiljo
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    return true;
-
-                }
-            );
-
-
-        const poang =
-            manadensTraningar
-                .map(
-                    function(traning) {
-
-                        return (
-                            raknaTraningspoang(
-                                traning
-                            )
-                        );
-
-                    }
-                )
-                .filter(
-                    function(poang) {
-
-                        return (
-                            poang !== null
-                        );
-
-                    }
-                );
-
-
-        let genomsnitt =
-            null;
-
-
-        if (
-            poang.length > 0
-        ) {
-
-            const summa =
-                poang.reduce(
-                    function(
-                        total,
-                        aktuellPoang
-                    ) {
-
-                        return (
-                            total +
-                            aktuellPoang
-                        );
-
-                    },
-                    0
-                );
-
-
-            genomsnitt =
-                summa /
-                poang.length;
-
-        }
-
-
-        resultat.push({
-
-            namn:
-                datum.toLocaleDateString(
-                    "sv-SE",
-                    {
-                        month: "long",
-                        year: "numeric"
-                    }
-                ),
-
-            antal:
-                manadensTraningar.length,
-
-            genomsnitt:
-                genomsnitt
-
-        });
-
-    }
-
-
-    return resultat;
-}
-
-
-function hamtaVeckostatistik(
-    traningData
-) {
-
-    const idag =
-        new Date();
-
-
-    const resultat = [];
-
-
-    for (
-        let i = 7;
-        i >= 0;
-        i--
-    ) {
-
-        const slut =
-            new Date(idag);
-
-
-        slut.setHours(
-            23,
-            59,
-            59,
-            999
-        );
-
-
-        slut.setDate(
-            idag.getDate() -
-            (i * 7)
-        );
-
-
-        const start =
-            new Date(slut);
-
-
-        start.setDate(
-            slut.getDate() -
-            6
-        );
-
-
-        start.setHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-
-        const veckansTraningar =
-            traningData.filter(
-                function(traning) {
-
-                    if (
-                        !traning.datum
-                    ) {
-
-                        return false;
-
-                    }
-
-
-                    const datum =
-                        new Date(
-                            traning.datum +
-                            "T00:00:00"
-                        );
-
-
-                    return (
-                        datum >= start &&
-                        datum <= slut
-                    );
-
-                }
-            );
-
-
-        resultat.push({
-
-            namn:
-                start.toLocaleDateString(
-                    "sv-SE",
-                    {
-                        day: "numeric",
-                        month: "short"
-                    }
-                ) +
-                "–" +
-                slut.toLocaleDateString(
-                    "sv-SE",
-                    {
-                        day: "numeric",
-                        month: "short"
-                    }
-                ),
-
-            antal:
-                veckansTraningar.length
-
-        });
-
-    }
-
-
-    return resultat;
-}
-
-
-// ==============================
-// UPPFÖLJNING
-// ==============================
+// ========================================
+// FILTRERA UPPFÖLJNING
+// ========================================
 
 function filtreraUppfoljningsData(
     data,
@@ -2741,8 +1211,7 @@ function filtreraUppfoljningsData(
 
             if (
                 valtTyp &&
-                kombination.typ !==
-                    valtTyp
+                kombination.typ !== valtTyp
             ) {
 
                 return false;
@@ -2752,8 +1221,7 @@ function filtreraUppfoljningsData(
 
             if (
                 valtFokus &&
-                kombination.fokus !==
-                    valtFokus
+                kombination.fokus !== valtFokus
             ) {
 
                 return false;
@@ -2763,8 +1231,7 @@ function filtreraUppfoljningsData(
 
             if (
                 valdMiljo &&
-                kombination.miljo !==
-                    valdMiljo
+                kombination.miljo !== valdMiljo
             ) {
 
                 return false;
@@ -2776,29 +1243,13 @@ function filtreraUppfoljningsData(
 
         }
     );
+
 }
 
 
-function raknaProcent(
-    antal,
-    totalt
-) {
-
-    if (
-        totalt === 0
-    ) {
-
-        return 0;
-
-    }
-
-
-    return (
-        antal /
-        totalt
-    ) * 100;
-}
-
+// ========================================
+// UPPDATERA UPPFÖLJNINGSFILTER
+// ========================================
 
 function uppdateraUppfoljningsFilter() {
 
@@ -2807,26 +1258,17 @@ function uppdateraUppfoljningsFilter() {
             "uppfoljning-typ"
         );
 
+
     const fokusLista =
         document.getElementById(
             "uppfoljning-fokus"
         );
 
+
     const miljoLista =
         document.getElementById(
             "uppfoljning-miljo"
         );
-
-
-    if (
-        !typLista ||
-        !fokusLista ||
-        !miljoLista
-    ) {
-
-        return;
-
-    }
 
 
     const valtTyp =
@@ -2841,32 +1283,66 @@ function uppdateraUppfoljningsFilter() {
         miljoLista.value;
 
 
-    fokusLista.innerHTML =
-        '<option value="">Alla fokus</option>';
+    fokusLista.innerHTML = "";
+
+    miljoLista.innerHTML = "";
 
 
-    miljoLista.innerHTML =
-        '<option value="">Alla miljöer</option>';
+    const fokusAlla =
+        document.createElement(
+            "option"
+        );
 
 
-    fokusLista.disabled =
-        !valtTyp;
+    fokusAlla.value = "";
+
+    fokusAlla.textContent =
+        "Alla fokus";
 
 
-    miljoLista.disabled =
-        !valtTyp;
+    fokusLista.appendChild(
+        fokusAlla
+    );
+
+
+    const miljoAlla =
+        document.createElement(
+            "option"
+        );
+
+
+    miljoAlla.value = "";
+
+    miljoAlla.textContent =
+        "Alla miljöer";
+
+
+    miljoLista.appendChild(
+        miljoAlla
+    );
 
 
     if (!valtTyp) {
+
+        fokusLista.disabled =
+            true;
+
+        miljoLista.disabled =
+            true;
 
         return;
 
     }
 
 
-    (
-        fokus[valtTyp] || []
-    ).forEach(
+    fokusLista.disabled =
+        false;
+
+    miljoLista.disabled =
+        false;
+
+
+    (fokus[valtTyp] || []).forEach(
         function(fokusAlternativ) {
 
             const option =
@@ -2891,9 +1367,7 @@ function uppdateraUppfoljningsFilter() {
     );
 
 
-    (
-        miljoer[valtTyp] || []
-    ).forEach(
+    (miljoer[valtTyp] || []).forEach(
         function(miljoAlternativ) {
 
             const option =
@@ -2954,8 +1428,74 @@ function uppdateraUppfoljningsFilter() {
             tidigareMiljo;
 
     }
+
 }
 
+
+// ========================================
+// FILTER EVENTS
+// ========================================
+
+document
+    .getElementById("uppfoljning-typ")
+    .addEventListener(
+        "change",
+        function() {
+
+            uppdateraUppfoljningsFilter();
+            visaUppfoljning();
+
+        }
+    );
+
+
+document
+    .getElementById("uppfoljning-fokus")
+    .addEventListener(
+        "change",
+        function() {
+
+            visaUppfoljning();
+
+        }
+    );
+
+
+document
+    .getElementById("uppfoljning-miljo")
+    .addEventListener(
+        "change",
+        function() {
+
+            visaUppfoljning();
+
+        }
+    );
+
+
+document
+    .getElementById("uppfoljning-rensa")
+    .addEventListener(
+        "click",
+        function() {
+
+            document
+                .getElementById(
+                    "uppfoljning-typ"
+                )
+                .value = "";
+
+
+            uppdateraUppfoljningsFilter();
+            visaUppfoljning();
+
+        }
+    );
+
+
+// ========================================
+// VISA UPPFÖLJNING
+// ========================================
 
 function visaUppfoljning() {
 
@@ -2963,26 +1503,93 @@ function visaUppfoljning() {
         hamtaTraningar();
 
 
-    const allData =
-        skapaUppfoljningsData();
+    const status =
+        hamtaOvergripandeStatus();
 
+
+    // -------------------------------
+    // ÖVERGRIPANDE LÄGE
+    // -------------------------------
+
+    document
+        .getElementById("antal-traning")
+        .textContent =
+        traningar.length;
+
+
+    document
+        .getElementById("status-bla")
+        .textContent =
+        status.bla.procent.toFixed(0) +
+        " %";
+
+
+    document
+        .getElementById("status-gron")
+        .textContent =
+        status.gron.procent.toFixed(0) +
+        " %";
+
+
+    document
+        .getElementById("status-gul")
+        .textContent =
+        status.gul.procent.toFixed(0) +
+        " %";
+
+
+    document
+        .getElementById("status-rod")
+        .textContent =
+        status.rod.procent.toFixed(0) +
+        " %";
+
+
+    document
+        .getElementById("status-otranad")
+        .textContent =
+        status.otränad.procent.toFixed(0) +
+        " %";
+
+
+    document
+        .getElementById("status-tackning")
+        .textContent =
+        status.tackning.antal +
+        " / " +
+        status.totalt;
+
+
+    // -------------------------------
+    // AKTIVA FILTER
+    // -------------------------------
 
     const valtTyp =
-        document.getElementById(
-            "uppfoljning-typ"
-        ).value;
+        document
+            .getElementById(
+                "uppfoljning-typ"
+            )
+            .value;
 
 
     const valtFokus =
-        document.getElementById(
-            "uppfoljning-fokus"
-        ).value;
+        document
+            .getElementById(
+                "uppfoljning-fokus"
+            )
+            .value;
 
 
     const valdMiljo =
-        document.getElementById(
-            "uppfoljning-miljo"
-        ).value;
+        document
+            .getElementById(
+                "uppfoljning-miljo"
+            )
+            .value;
+
+
+    const allData =
+        skapaUppfoljningsData();
 
 
     const filtreradData =
@@ -3000,8 +1607,7 @@ function visaUppfoljning() {
 
                 if (
                     valtTyp &&
-                    traning.moment !==
-                        valtTyp
+                    traning.moment !== valtTyp
                 ) {
 
                     return false;
@@ -3011,8 +1617,7 @@ function visaUppfoljning() {
 
                 if (
                     valtFokus &&
-                    traning.fokus !==
-                        valtFokus
+                    traning.fokus !== valtFokus
                 ) {
 
                     return false;
@@ -3022,8 +1627,7 @@ function visaUppfoljning() {
 
                 if (
                     valdMiljo &&
-                    traning.miljo !==
-                        valdMiljo
+                    traning.miljo !== valdMiljo
                 ) {
 
                     return false;
@@ -3037,84 +1641,15 @@ function visaUppfoljning() {
         );
 
 
-    // ÖVERGRIPANDE
-
-    const status =
-        raknaLageFranData(
-            allData
-        );
-
-
-    document.getElementById(
-        "antal-traning"
-    ).textContent =
-        traningar.length;
-
-
-    document.getElementById(
-        "status-bla"
-    ).textContent =
-        raknaProcent(
-            status.bla,
-            status.totalt
-        ).toFixed(0) +
-        " %";
-
-
-    document.getElementById(
-        "status-gron"
-    ).textContent =
-        raknaProcent(
-            status.gron,
-            status.totalt
-        ).toFixed(0) +
-        " %";
-
-
-    document.getElementById(
-        "status-gul"
-    ).textContent =
-        raknaProcent(
-            status.gul,
-            status.totalt
-        ).toFixed(0) +
-        " %";
-
-
-    document.getElementById(
-        "status-rod"
-    ).textContent =
-        raknaProcent(
-            status.rod,
-            status.totalt
-        ).toFixed(0) +
-        " %";
-
-
-    document.getElementById(
-        "status-otranad"
-    ).textContent =
-        raknaProcent(
-            status.otränad,
-            status.totalt
-        ).toFixed(0) +
-        " %";
-
-
-    document.getElementById(
-        "status-tackning"
-    ).textContent =
-        (
-            status.totalt -
-            status.otränad
-        ) +
-        " / " +
-        status.totalt;
-
-
+    // -------------------------------
     // FILTRERAT LÄGE
+    // -------------------------------
 
-    const filtreratTranade =
+    const antalFiltrerade =
+        filtreradData.length;
+
+
+    const antalTranade =
         filtreradData.filter(
             function(kombination) {
 
@@ -3127,7 +1662,7 @@ function visaUppfoljning() {
         ).length;
 
 
-    const filtreratOtranade =
+    const antalOtranade =
         filtreradData.filter(
             function(kombination) {
 
@@ -3140,56 +1675,77 @@ function visaUppfoljning() {
         ).length;
 
 
-    document.getElementById(
-        "filtrerat-antal-kombinationer"
-    ).textContent =
-        filtreradData.length;
+    document
+        .getElementById(
+            "filtrerat-antal-kombinationer"
+        )
+        .textContent =
+        antalFiltrerade;
 
 
-    document.getElementById(
-        "filtrerat-tackning"
-    ).textContent =
-        filtreratTranade +
+    document
+        .getElementById(
+            "filtrerat-tackning"
+        )
+        .textContent =
+        antalTranade +
         " / " +
-        filtreradData.length;
+        antalFiltrerade;
 
 
-    document.getElementById(
-        "filtrerat-traningar"
-    ).textContent =
+    document
+        .getElementById(
+            "filtrerat-traningar"
+        )
+        .textContent =
         filtreradeTraningar.length;
 
 
-    document.getElementById(
-        "filtrerat-otranade"
-    ).textContent =
-        filtreratOtranade;
+    document
+        .getElementById(
+            "filtrerat-otranade"
+        )
+        .textContent =
+        antalOtranade;
 
 
-    [1, 2, 3, 4, 5]
-        .forEach(
-            function(niva) {
+    // -------------------------------
+    // NIVÅER
+    // -------------------------------
 
-                document.getElementById(
-                    "filtrerat-niva" +
-                    niva
-                ).textContent =
-                    filtreradData.filter(
-                        function(kombination) {
+    for (
+        let niva = 1;
+        niva <= 5;
+        niva++
+    ) {
 
-                            return (
-                                kombination.niva ===
-                                niva
-                            );
+        const antal =
+            filtreradData.filter(
+                function(kombination) {
 
-                        }
-                    ).length;
+                    return (
+                        kombination.niva ===
+                        niva
+                    );
 
-            }
-        );
+                }
+            ).length;
 
 
-    // VAD BEHÖVER JAG TRÄNA PÅ
+        document
+            .getElementById(
+                "filtrerat-niva" +
+                niva
+            )
+            .textContent =
+            antal;
+
+    }
+
+
+    // -------------------------------
+    // VAD BEHÖVER TRÄNAS?
+    // -------------------------------
 
     const behov =
         filtreradData.filter(
@@ -3288,44 +1844,72 @@ function visaUppfoljning() {
         );
 
 
+    const behovAntal =
+        document.getElementById(
+            "behov-antal"
+        );
+
+
     behovLista.innerHTML =
         "";
 
 
-    if (
-        behov.length ===
-        0
-    ) {
+    behovAntal.textContent =
+        behov.length;
 
-        behovLista.innerHTML =
-            "<p>Inga röda eller gula kombinationer just nu.</p>";
 
-    } else {
+    if (behov.length === 0) {
+
+        behovLista.innerHTML = `
+            <p class="empty-state">
+                Inga röda eller gula kombinationer just nu.
+            </p>
+        `;
+
+    }
+    else {
+
+        // Visa endast de tre viktigaste direkt.
 
         behov
-            .slice(0, 10)
+            .slice(0, 3)
             .forEach(
                 function(kombination) {
 
                     const rad =
                         document.createElement(
-                            "p"
+                            "div"
                         );
 
 
-                    rad.textContent =
-                        kombination.typ +
-                        " · " +
-                        kombination.fokus +
-                        " · " +
-                        kombination.miljo +
-                        " → Nivå " +
-                        kombination.niva +
-                        " · Senast: " +
-                        (
-                            kombination.senaste ||
-                            "Aldrig tränat"
-                        );
+                    rad.className =
+                        "behov-rad " +
+                        kombination.farg;
+
+
+                    rad.innerHTML = `
+
+                        <div>
+
+                            <strong>
+                                ${kombination.typ}
+                            </strong>
+
+                            <span>
+                                ${kombination.fokus}
+                                ·
+                                ${kombination.miljo}
+                            </span>
+
+                        </div>
+
+
+                        <strong class="niva">
+                            Nivå
+                            ${kombination.niva}
+                        </strong>
+
+                    `;
 
 
                     behovLista.appendChild(
@@ -3336,25 +1920,88 @@ function visaUppfoljning() {
             );
 
 
-        if (
-            behov.length >
-            10
-        ) {
+        // Resten bakom "Visa alla".
 
-            const fler =
+        if (behov.length > 3) {
+
+            const detaljer =
                 document.createElement(
-                    "p"
+                    "details"
                 );
 
 
-            fler.textContent =
-                "Visar 10 av " +
+            detaljer.className =
+                "behov-fler";
+
+
+            const summary =
+                document.createElement(
+                    "summary"
+                );
+
+
+            summary.textContent =
+                "Visa alla " +
                 behov.length +
-                " prioriterade kombinationer.";
+                " prioriteringar";
+
+
+            detaljer.appendChild(
+                summary
+            );
+
+
+            behov
+                .slice(3)
+                .forEach(
+                    function(kombination) {
+
+                        const rad =
+                            document.createElement(
+                                "div"
+                            );
+
+
+                        rad.className =
+                            "behov-rad " +
+                            kombination.farg;
+
+
+                        rad.innerHTML = `
+
+                            <div>
+
+                                <strong>
+                                    ${kombination.typ}
+                                </strong>
+
+                                <span>
+                                    ${kombination.fokus}
+                                    ·
+                                    ${kombination.miljo}
+                                </span>
+
+                            </div>
+
+
+                            <strong class="niva">
+                                Nivå
+                                ${kombination.niva}
+                            </strong>
+
+                        `;
+
+
+                        detaljer.appendChild(
+                            rad
+                        );
+
+                    }
+                );
 
 
             behovLista.appendChild(
-                fler
+                detaljer
             );
 
         }
@@ -3362,20 +2009,24 @@ function visaUppfoljning() {
     }
 
 
+    // -------------------------------
     // PREPARAT
+    // -------------------------------
 
     const preparatData =
-        hamtaPreparatStatistik()
-            .sort(
-                function(a, b) {
+        hamtaPreparatStatistik();
 
-                    return (
-                        b.totalt -
-                        a.totalt
-                    );
 
-                }
+    preparatData.sort(
+        function(a, b) {
+
+            return (
+                b.totalt -
+                a.totalt
             );
+
+        }
+    );
 
 
     const preparatLista =
@@ -3397,66 +2048,54 @@ function visaUppfoljning() {
                 );
 
 
-            const totalProcent =
-                traningar.length > 0
-                    ? Math.round(
-                        (
-                            data.totalt /
-                            traningar.length
-                        ) * 100
-                    )
-                    : 0;
-
-
-            const soktypHtml =
-                soktyper
-                    .map(
-                        function(soktyp) {
-
-                            const antal =
-                                data
-                                    .perSoktyp[
-                                        soktyp
-                                    ]
-                                    .antal;
-
-
-                            const senaste =
-                                data
-                                    .perSoktyp[
-                                        soktyp
-                                    ]
-                                    .senaste;
-
-
-                            return `
-                                <p>
-                                    ${soktyp}: ${antal}
-                                    · Senast:
-                                    ${senaste || "Aldrig tränat"}
-                                </p>
-                            `;
-
-                        }
-                    )
-                    .join("");
+            const senasteText =
+                formateraDatum(
+                    data.senaste
+                );
 
 
             block.innerHTML = `
-                <h4>${data.preparat}</h4>
 
-                <p>
-                    Totalt:
-                    ${data.totalt}
-                    (${totalProcent} % av alla sökträningar)
-                </p>
+                <div class="stat-row">
 
-                <p>
+                    <strong>
+                        ${data.preparat}
+                    </strong>
+
+                    <span>
+                        ${data.totalt}
+                        träningar
+                    </span>
+
+                </div>
+
+
+                <p class="subtext">
                     Senast tränat:
-                    ${data.senaste || "Aldrig tränat"}
+                    ${senasteText}
                 </p>
 
-                ${soktypHtml}
+
+                <p>
+                    Byggnad
+                    ${data.perSoktyp["Byggnadssök"].antal}
+
+                    ·
+
+                    Fordon
+                    ${data.perSoktyp["Fordonssök"].antal}
+
+                    ·
+
+                    Område
+                    ${data.perSoktyp["Områdessök"].antal}
+
+                    ·
+
+                    Bagage
+                    ${data.perSoktyp["Bagagessök"].antal}
+                </p>
+
             `;
 
 
@@ -3468,7 +2107,19 @@ function visaUppfoljning() {
     );
 
 
+    // -------------------------------
     // TOTAL SÖKTRÄNING
+    // -------------------------------
+
+    const soktyper = [
+
+        "Byggnadssök",
+        "Fordonssök",
+        "Områdessök",
+        "Bagagessök"
+
+    ];
+
 
     const totalSoktyperLista =
         document.getElementById(
@@ -3498,14 +2149,25 @@ function visaUppfoljning() {
 
             const rad =
                 document.createElement(
-                    "p"
+                    "div"
                 );
 
 
-            rad.textContent =
-                soktyp +
-                ": " +
-                antal;
+            rad.className =
+                "stat-row";
+
+
+            rad.innerHTML = `
+
+                <span>
+                    ${soktyp}
+                </span>
+
+                <strong>
+                    ${antal}
+                </strong>
+
+            `;
 
 
             totalSoktyperLista.appendChild(
@@ -3516,30 +2178,33 @@ function visaUppfoljning() {
     );
 
 
+    // -------------------------------
     // SENAST TRÄNAT
+    // -------------------------------
 
     const senastTranat =
-        filtreradData
-            .filter(
-                function(kombination) {
+        filtreradData.filter(
+            function(kombination) {
 
-                    return (
-                        kombination.senaste !==
-                        null
-                    );
+                return (
+                    kombination.senaste !==
+                    null
+                );
 
-                }
-            )
-            .sort(
-                function(a, b) {
+            }
+        );
 
-                    return (
-                        new Date(b.senaste) -
-                        new Date(a.senaste)
-                    );
 
-                }
+    senastTranat.sort(
+        function(a, b) {
+
+            return (
+                new Date(b.senaste) -
+                new Date(a.senaste)
             );
+
+        }
+    );
 
 
     const senastTranatLista =
@@ -3559,18 +2224,32 @@ function visaUppfoljning() {
 
                 const rad =
                     document.createElement(
-                        "p"
+                        "div"
                     );
 
 
-                rad.textContent =
-                    kombination.typ +
-                    " · " +
-                    kombination.fokus +
-                    " · " +
-                    kombination.miljo +
-                    " → " +
-                    kombination.senaste;
+                rad.className =
+                    "stat-row";
+
+
+                rad.innerHTML = `
+
+                    <span>
+                        ${kombination.typ}
+                        ·
+                        ${kombination.fokus}
+                        ·
+                        ${kombination.miljo}
+                    </span>
+
+
+                    <strong>
+                        ${formateraDatum(
+                            kombination.senaste
+                        )}
+                    </strong>
+
+                `;
 
 
                 senastTranatLista.appendChild(
@@ -3582,40 +2261,46 @@ function visaUppfoljning() {
 
 
     if (
-        senastTranat.length ===
-        0
+        senastTranat.length === 0
     ) {
 
         senastTranatLista.innerHTML =
-            "<p>Ingen träning hittades.</p>";
+            `
+                <p class="empty-state">
+                    Ingen träning hittades.
+                </p>
+            `;
 
     }
 
 
+    // -------------------------------
     // LÄNGST SEDAN TRÄNAT
+    // -------------------------------
 
     const langstSedanTranat =
-        filtreradData
-            .filter(
-                function(kombination) {
+        filtreradData.filter(
+            function(kombination) {
 
-                    return (
-                        kombination.senaste !==
-                        null
-                    );
+                return (
+                    kombination.senaste !==
+                    null
+                );
 
-                }
-            )
-            .sort(
-                function(a, b) {
+            }
+        );
 
-                    return (
-                        new Date(a.senaste) -
-                        new Date(b.senaste)
-                    );
 
-                }
+    langstSedanTranat.sort(
+        function(a, b) {
+
+            return (
+                new Date(a.senaste) -
+                new Date(b.senaste)
             );
+
+        }
+    );
 
 
     const langstSedanTranatLista =
@@ -3635,18 +2320,32 @@ function visaUppfoljning() {
 
                 const rad =
                     document.createElement(
-                        "p"
+                        "div"
                     );
 
 
-                rad.textContent =
-                    kombination.typ +
-                    " · " +
-                    kombination.fokus +
-                    " · " +
-                    kombination.miljo +
-                    " → " +
-                    kombination.senaste;
+                rad.className =
+                    "stat-row";
+
+
+                rad.innerHTML = `
+
+                    <span>
+                        ${kombination.typ}
+                        ·
+                        ${kombination.fokus}
+                        ·
+                        ${kombination.miljo}
+                    </span>
+
+
+                    <strong>
+                        ${formateraDatum(
+                            kombination.senaste
+                        )}
+                    </strong>
+
+                `;
 
 
                 langstSedanTranatLista.appendChild(
@@ -3658,17 +2357,22 @@ function visaUppfoljning() {
 
 
     if (
-        langstSedanTranat.length ===
-        0
+        langstSedanTranat.length === 0
     ) {
 
         langstSedanTranatLista.innerHTML =
-            "<p>Ingen träning hittades.</p>";
+            `
+                <p class="empty-state">
+                    Ingen träning hittades.
+                </p>
+            `;
 
     }
 
 
+    // -------------------------------
     // OTRÄNADE
+    // -------------------------------
 
     const otranade =
         filtreradData.filter(
@@ -3683,9 +2387,11 @@ function visaUppfoljning() {
         );
 
 
-    document.getElementById(
-        "antal-otranade"
-    ).textContent =
+    document
+        .getElementById(
+            "antal-otranade"
+        )
+        .textContent =
         otranade.length;
 
 
@@ -3716,8 +2422,7 @@ function visaUppfoljning() {
 
 
             if (
-                otranadeForTyp.length ===
-                0
+                otranadeForTyp.length === 0
             ) {
 
                 return;
@@ -3725,19 +2430,48 @@ function visaUppfoljning() {
             }
 
 
-            const rubrik =
+            const block =
                 document.createElement(
-                    "h4"
+                    "details"
                 );
 
 
-            rubrik.textContent =
-                typ;
+            block.className =
+                "otranad-grupp";
 
 
-            otranadeLista.appendChild(
-                rubrik
+            const summary =
+                document.createElement(
+                    "summary"
+                );
+
+
+            summary.innerHTML = `
+
+                <span>
+                    ${typ}
+                </span>
+
+                <strong>
+                    ${otranadeForTyp.length}
+                </strong>
+
+            `;
+
+
+            block.appendChild(
+                summary
             );
+
+
+            const innehall =
+                document.createElement(
+                    "div"
+                );
+
+
+            innehall.className =
+                "otranad-lista";
 
 
             otranadeForTyp.forEach(
@@ -3755,18 +2489,30 @@ function visaUppfoljning() {
                         kombination.miljo;
 
 
-                    otranadeLista.appendChild(
+                    innehall.appendChild(
                         rad
                     );
 
                 }
             );
 
+
+            block.appendChild(
+                innehall
+            );
+
+
+            otranadeLista.appendChild(
+                block
+            );
+
         }
     );
 
 
+    // -------------------------------
     // UTVECKLING ÖVER TID
+    // -------------------------------
 
     const utveckling =
         hamtaUtvecklingOverTid(
@@ -3792,25 +2538,36 @@ function visaUppfoljning() {
 
             const rad =
                 document.createElement(
-                    "p"
+                    "div"
                 );
 
 
+            rad.className =
+                "stat-row";
+
+
             const snitt =
-                manad.genomsnitt ===
-                    null
-                    ? "Ingen poängdata"
-                    : manad
-                        .genomsnitt
-                        .toFixed(1);
+                manad.genomsnitt === null
+                    ? "–"
+                    : manad.genomsnitt.toFixed(
+                        1
+                    );
 
 
-            rad.textContent =
-                manad.namn +
-                ": " +
-                manad.antal +
-                " träningar · Snittpoäng: " +
-                snitt;
+            rad.innerHTML = `
+
+                <span>
+                    ${manad.namn}
+                </span>
+
+                <strong>
+                    ${manad.antal}
+                    pass ·
+                    ${snitt}
+                    poäng
+                </strong>
+
+            `;
 
 
             utvecklingLista.appendChild(
@@ -3820,126 +2577,1431 @@ function visaUppfoljning() {
         }
     );
 
-
-    // VECKOSTATISTIK
-
-    const veckor =
-        hamtaVeckostatistik(
-            filtreradeTraningar
-        );
+}
 
 
-    const veckostatistikLista =
-        document.getElementById(
-            "veckostatistik"
-        );
+// ========================================
+// UTVECKLING ÖVER TID
+// ========================================
+
+function hamtaUtvecklingOverTid(
+    traningData,
+    valtTyp,
+    valtFokus,
+    valdMiljo
+) {
+
+    const idag =
+        new Date();
 
 
-    veckostatistikLista.innerHTML =
-        "";
+    const resultat =
+        [];
 
 
-    veckor.forEach(
-        function(vecka) {
+    for (
+        let i = 5;
+        i >= 0;
+        i--
+    ) {
 
-            const rad =
-                document.createElement(
-                    "p"
+        const datum =
+            new Date(
+                idag.getFullYear(),
+                idag.getMonth() - i,
+                1
+            );
+
+
+        const ar =
+            datum.getFullYear();
+
+
+        const manad =
+            datum.getMonth();
+
+
+        const manadensTraningar =
+            traningData.filter(
+                function(traning) {
+
+                    if (!traning.datum) {
+                        return false;
+                    }
+
+
+                    const traningsDatum =
+                        new Date(
+                            traning.datum +
+                            "T00:00:00"
+                        );
+
+
+                    if (
+                        traningsDatum.getFullYear() !==
+                        ar
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    if (
+                        traningsDatum.getMonth() !==
+                        manad
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    if (
+                        valtTyp &&
+                        traning.moment !==
+                        valtTyp
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    if (
+                        valtFokus &&
+                        traning.fokus !==
+                        valtFokus
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    if (
+                        valdMiljo &&
+                        traning.miljo !==
+                        valdMiljo
+                    ) {
+
+                        return false;
+
+                    }
+
+
+                    return true;
+
+                }
+            );
+
+
+        const poang =
+            manadensTraningar
+                .map(
+                    function(traning) {
+
+                        return raknaTraningspoang(
+                            traning
+                        );
+
+                    }
+                )
+                .filter(
+                    function(poang) {
+
+                        return poang !== null;
+
+                    }
                 );
 
 
-            rad.textContent =
-                vecka.namn +
-                ": " +
-                vecka.antal +
-                " träningar";
+        let genomsnitt =
+            null;
 
 
-            veckostatistikLista.appendChild(
-                rad
+        if (
+            poang.length > 0
+        ) {
+
+            const summa =
+                poang.reduce(
+                    function(
+                        total,
+                        aktuellPoang
+                    ) {
+
+                        return (
+                            total +
+                            aktuellPoang
+                        );
+
+                    },
+                    0
+                );
+
+
+            genomsnitt =
+                summa /
+                poang.length;
+
+        }
+
+
+        const manadsnamn =
+            datum.toLocaleDateString(
+                "sv-SE",
+                {
+                    month: "long",
+                    year: "numeric"
+                }
+            );
+
+
+        resultat.push({
+
+            namn:
+                manadsnamn,
+
+            antal:
+                manadensTraningar.length,
+
+            genomsnitt:
+                genomsnitt
+
+        });
+
+    }
+
+
+    return resultat;
+
+}
+
+
+// ========================================
+// SKAPA KOMBINATIONER
+// ========================================
+
+function skapaKombinationer() {
+
+    const kombinationer =
+        [];
+
+
+    typer.forEach(
+        function(typ) {
+
+            const fokusForTyp =
+                fokus[typ] || [];
+
+
+            const miljoerForTyp =
+                miljoer[typ] || [];
+
+
+            fokusForTyp.forEach(
+                function(fokusAlternativ) {
+
+                    miljoerForTyp.forEach(
+                        function(miljoAlternativ) {
+
+                            kombinationer.push({
+
+                                typ:
+                                    typ,
+
+                                fokus:
+                                    fokusAlternativ,
+
+                                miljo:
+                                    miljoAlternativ
+
+                            });
+
+                        }
+                    );
+
+                }
             );
 
         }
     );
+
+
+    return kombinationer;
+
 }
 
 
-// ==============================
-// FILTERHÄNDELSER
-// ==============================
+// ========================================
+// TRÄNINGSPOÄNG
+// ========================================
 
-document
-    .getElementById(
-        "uppfoljning-typ"
-    )
-    .addEventListener(
-        "change",
-        function() {
+function raknaTraningspoang(
+    traning
+) {
 
-            uppdateraUppfoljningsFilter();
-            visaUppfoljning();
+    const resultatPoang = {
+
+        "Misslyckad": 1,
+
+        "Behöver repeteras": 2,
+
+        "Tränad": 4,
+
+        "Godkänd": 5
+
+    };
+
+
+    const svarighetsPoang = {
+
+        "Lätt": 1,
+
+        "Mellan": 3,
+
+        "Svår": 5
+
+    };
+
+
+    const resultat =
+        resultatPoang[
+            traning.resultat
+        ];
+
+
+    const svarighet =
+        svarighetsPoang[
+            traning.svarighetsgrad
+        ];
+
+
+    if (
+        resultat === undefined ||
+        svarighet === undefined
+    ) {
+
+        return null;
+
+    }
+
+
+    const poang =
+        (
+            resultat * 0.6
+        ) +
+        (
+            svarighet * 0.4
+        );
+
+
+    return poang;
+
+}
+
+
+// ========================================
+// RÄKNA NIVÅ
+// ========================================
+
+function raknaNiva(
+    typ,
+    valtFokus,
+    valdMiljo
+) {
+
+    const traningar =
+        hamtaTraningar();
+
+
+    const matchandeTraningar =
+        traningar.filter(
+            function(traning) {
+
+                return (
+
+                    traning.moment ===
+                        typ &&
+
+                    traning.fokus ===
+                        valtFokus &&
+
+                    traning.miljo ===
+                        valdMiljo
+
+                );
+
+            }
+        );
+
+
+    if (
+        matchandeTraningar.length === 0
+    ) {
+
+        return null;
+
+    }
+
+
+    matchandeTraningar.sort(
+        function(a, b) {
+
+            return (
+                new Date(b.datum) -
+                new Date(a.datum)
+            );
 
         }
     );
 
 
-document
-    .getElementById(
-        "uppfoljning-fokus"
-    )
-    .addEventListener(
-        "change",
-        visaUppfoljning
+    const senaste =
+        matchandeTraningar.slice(
+            0,
+            5
+        );
+
+
+    const poang =
+        senaste
+            .map(
+                function(traning) {
+
+                    return raknaTraningspoang(
+                        traning
+                    );
+
+                }
+            )
+            .filter(
+                function(poang) {
+
+                    return poang !== null;
+
+                }
+            );
+
+
+    if (
+        poang.length === 0
+    ) {
+
+        return null;
+
+    }
+
+
+    const summa =
+        poang.reduce(
+            function(
+                total,
+                poang
+            ) {
+
+                return (
+                    total +
+                    poang
+                );
+
+            },
+            0
+        );
+
+
+    const genomsnitt =
+        summa /
+        poang.length;
+
+
+    return genomsnitt;
+
+}
+
+
+// ========================================
+// NIVÅ
+// ========================================
+
+function hamtaNiva(
+    typ,
+    valtFokus,
+    valdMiljo
+) {
+
+    const traningar =
+        hamtaTraningar();
+
+
+    const matchandeTraningar =
+        traningar.filter(
+            function(traning) {
+
+                return (
+
+                    traning.moment ===
+                        typ &&
+
+                    traning.fokus ===
+                        valtFokus &&
+
+                    traning.miljo ===
+                        valdMiljo
+
+                );
+
+            }
+        );
+
+
+    if (
+        matchandeTraningar.length === 0
+    ) {
+
+        return null;
+
+    }
+
+
+    const poang =
+        raknaNiva(
+            typ,
+            valtFokus,
+            valdMiljo
+        );
+
+
+    if (
+        poang === null
+    ) {
+
+        return null;
+
+    }
+
+
+    if (
+        poang >= 4.5 &&
+        matchandeTraningar.length >= 3
+    ) {
+
+        return 5;
+
+    }
+
+
+    if (
+        poang >= 3.5
+    ) {
+
+        return 4;
+
+    }
+
+
+    if (
+        poang >= 3.0
+    ) {
+
+        return 3;
+
+    }
+
+
+    if (
+        poang >= 2.0
+    ) {
+
+        return 2;
+
+    }
+
+
+    return 1;
+
+}
+
+
+// ========================================
+// NIVÅFÄRG
+// ========================================
+
+function hamtaNivaFarg(
+    niva
+) {
+
+    if (
+        niva === null
+    ) {
+
+        return null;
+
+    }
+
+
+    if (
+        niva <= 2
+    ) {
+
+        return "röd";
+
+    }
+
+
+    if (
+        niva === 3
+    ) {
+
+        return "gul";
+
+    }
+
+
+    if (
+        niva === 4
+    ) {
+
+        return "grön";
+
+    }
+
+
+    if (
+        niva === 5
+    ) {
+
+        return "blå";
+
+    }
+
+}
+
+
+// ========================================
+// SKAPA UPPFÖLJNINGSDATA
+// ========================================
+
+function skapaUppfoljningsData() {
+
+    const kombinationer =
+        skapaKombinationer();
+
+
+    const traningar =
+        hamtaTraningar();
+
+
+    return kombinationer.map(
+        function(kombination) {
+
+            const matchandeTraningar =
+                traningar.filter(
+                    function(traning) {
+
+                        return (
+
+                            traning.moment ===
+                                kombination.typ &&
+
+                            traning.fokus ===
+                                kombination.fokus &&
+
+                            traning.miljo ===
+                                kombination.miljo
+
+                        );
+
+                    }
+                );
+
+
+            const niva =
+                hamtaNiva(
+                    kombination.typ,
+                    kombination.fokus,
+                    kombination.miljo
+                );
+
+
+            let senaste =
+                null;
+
+
+            if (
+                matchandeTraningar.length > 0
+            ) {
+
+                matchandeTraningar.sort(
+                    function(a, b) {
+
+                        return (
+                            new Date(b.datum) -
+                            new Date(a.datum)
+                        );
+
+                    }
+                );
+
+
+                senaste =
+                    matchandeTraningar[0]
+                        .datum;
+
+            }
+
+
+            return {
+
+                typ:
+                    kombination.typ,
+
+                fokus:
+                    kombination.fokus,
+
+                miljo:
+                    kombination.miljo,
+
+                niva:
+                    niva,
+
+                farg:
+                    hamtaNivaFarg(niva),
+
+                senaste:
+                    senaste,
+
+                antalTraning:
+                    matchandeTraningar.length
+
+            };
+
+        }
     );
 
-
-document
-    .getElementById(
-        "uppfoljning-miljo"
-    )
-    .addEventListener(
-        "change",
-        visaUppfoljning
-    );
+}
 
 
-document
-    .getElementById(
-        "uppfoljning-rensa"
-    )
-    .addEventListener(
-        "click",
-        function() {
+// ========================================
+// ÖVERGRIPANDE LÄGE
+// ========================================
 
-            document.getElementById(
-                "uppfoljning-typ"
-            ).value = "";
+function raknaOvergripandeLage() {
+
+    const data =
+        skapaUppfoljningsData();
 
 
-            uppdateraUppfoljningsFilter();
+    let rod = 0;
+    let gul = 0;
+    let gron = 0;
+    let bla = 0;
+    let otränad = 0;
 
-            visaUppfoljning();
+
+    data.forEach(
+        function(kombination) {
+
+            if (
+                kombination.farg ===
+                "röd"
+            ) {
+
+                rod++;
+
+            }
+
+
+            if (
+                kombination.farg ===
+                "gul"
+            ) {
+
+                gul++;
+
+            }
+
+
+            if (
+                kombination.farg ===
+                "grön"
+            ) {
+
+                gron++;
+
+            }
+
+
+            if (
+                kombination.farg ===
+                "blå"
+            ) {
+
+                bla++;
+
+            }
+
+
+            if (
+                kombination.antalTraning ===
+                0
+            ) {
+
+                otränad++;
+
+            }
 
         }
     );
 
 
-// ==============================
-// START
-// ==============================
+    return {
 
-fyllTypLista();
+        rod:
+            rod,
 
-fyllPreparatLista();
+        gul:
+            gul,
 
-uppdateraFokus();
+        gron:
+            gron,
 
-uppdateraMiljo();
+        bla:
+            bla,
 
-uppdateraPreparat();
+        otränad:
+            otränad,
 
-uppdateraLoggboksFilter();
+        totalt:
+            data.length
 
-uppdateraUppfoljningsFilter();
+    };
 
-visaVy("start");
+}
+
+
+// ========================================
+// VAD BEHÖVER TRÄNAS?
+// ========================================
+
+function hamtaVadBehoverTranas() {
+
+    const data =
+        skapaUppfoljningsData();
+
+
+    const behov =
+        data.filter(
+            function(kombination) {
+
+                return (
+
+                    kombination.farg ===
+                        "röd" ||
+
+                    kombination.farg ===
+                        "gul"
+
+                );
+
+            }
+        );
+
+
+    behov.sort(
+        function(a, b) {
+
+            if (
+                a.farg === "röd" &&
+                b.farg === "gul"
+            ) {
+
+                return -1;
+
+            }
+
+
+            if (
+                a.farg === "gul" &&
+                b.farg === "röd"
+            ) {
+
+                return 1;
+
+            }
+
+
+            if (
+                a.niva !== b.niva
+            ) {
+
+                return (
+                    a.niva -
+                    b.niva
+                );
+
+            }
+
+
+            if (
+                a.antalTraning !==
+                b.antalTraning
+            ) {
+
+                return (
+                    a.antalTraning -
+                    b.antalTraning
+                );
+
+            }
+
+
+            if (
+                a.senaste === null
+            ) {
+
+                return -1;
+
+            }
+
+
+            if (
+                b.senaste === null
+            ) {
+
+                return 1;
+
+            }
+
+
+            return (
+                new Date(a.senaste) -
+                new Date(b.senaste)
+            );
+
+        }
+    );
+
+
+    return behov;
+
+}
+
+
+// ========================================
+// OTRÄNADE
+// ========================================
+
+function hamtaOtränade() {
+
+    const data =
+        skapaUppfoljningsData();
+
+
+    return data.filter(
+        function(kombination) {
+
+            return (
+                kombination.antalTraning ===
+                0
+            );
+
+        }
+    );
+
+}
+
+
+// ========================================
+// LÄNGST SEDAN TRÄNAT
+// ========================================
+
+function hamtaLangstSedanTranat() {
+
+    const data =
+        skapaUppfoljningsData();
+
+
+    const tranade =
+        data.filter(
+            function(kombination) {
+
+                return (
+                    kombination.senaste !==
+                    null
+                );
+
+            }
+        );
+
+
+    tranade.sort(
+        function(a, b) {
+
+            return (
+                new Date(a.senaste) -
+                new Date(b.senaste)
+            );
+
+        }
+    );
+
+
+    return tranade;
+
+}
+
+
+// ========================================
+// SENAST TRÄNAT
+// ========================================
+
+function hamtaSenastTranat() {
+
+    const data =
+        skapaUppfoljningsData();
+
+
+    const tranade =
+        data.filter(
+            function(kombination) {
+
+                return (
+                    kombination.senaste !==
+                    null
+                );
+
+            }
+        );
+
+
+    tranade.sort(
+        function(a, b) {
+
+            return (
+                new Date(b.senaste) -
+                new Date(a.senaste)
+            );
+
+        }
+    );
+
+
+    return tranade;
+
+}
+
+
+// ========================================
+// PREPARATSTATISTIK
+// ========================================
+
+function hamtaPreparatStatistik() {
+
+    const traningar =
+        hamtaTraningar();
+
+
+    const soktyper = [
+
+        "Byggnadssök",
+        "Fordonssök",
+        "Områdessök",
+        "Bagagessök"
+
+    ];
+
+
+    return preparat.map(
+        function(preparatNamn) {
+
+            const traningarMedPreparat =
+                traningar.filter(
+                    function(traning) {
+
+                        return (
+                            traning.preparat ===
+                            preparatNamn
+                        );
+
+                    }
+                );
+
+
+            let senaste =
+                null;
+
+
+            if (
+                traningarMedPreparat.length > 0
+            ) {
+
+                traningarMedPreparat.sort(
+                    function(a, b) {
+
+                        return (
+                            new Date(b.datum) -
+                            new Date(a.datum)
+                        );
+
+                    }
+                );
+
+
+                senaste =
+                    traningarMedPreparat[0]
+                        .datum;
+
+            }
+
+
+            const perSoktyp =
+                {};
+
+
+            soktyper.forEach(
+                function(soktyp) {
+
+                    const traningarForSoktyp =
+                        traningarMedPreparat.filter(
+                            function(traning) {
+
+                                return (
+                                    traning.moment ===
+                                    soktyp
+                                );
+
+                            }
+                        );
+
+
+                    let senasteForSoktyp =
+                        null;
+
+
+                    if (
+                        traningarForSoktyp.length >
+                        0
+                    ) {
+
+                        traningarForSoktyp.sort(
+                            function(a, b) {
+
+                                return (
+                                    new Date(b.datum) -
+                                    new Date(a.datum)
+                                );
+
+                            }
+                        );
+
+
+                        senasteForSoktyp =
+                            traningarForSoktyp[0]
+                                .datum;
+
+                    }
+
+
+                    perSoktyp[soktyp] = {
+
+                        antal:
+                            traningarForSoktyp.length,
+
+                        senaste:
+                            senasteForSoktyp
+
+                    };
+
+                }
+            );
+
+
+            return {
+
+                preparat:
+                    preparatNamn,
+
+                totalt:
+                    traningarMedPreparat.length,
+
+                senaste:
+                    senaste,
+
+                perSoktyp:
+                    perSoktyp
+
+            };
+
+        }
+    );
+
+}
+
+
+// ========================================
+// PROCENT
+// ========================================
+
+function raknaProcentOvergripande() {
+
+    const lage =
+        raknaOvergripandeLage();
+
+
+    if (
+        lage.totalt === 0
+    ) {
+
+        return {
+
+            bla: 0,
+
+            gron: 0,
+
+            gul: 0,
+
+            rod: 0,
+
+            otränad: 0,
+
+            tackning: 0
+
+        };
+
+    }
+
+
+    return {
+
+        bla:
+            (
+                lage.bla /
+                lage.totalt
+            ) * 100,
+
+        gron:
+            (
+                lage.gron /
+                lage.totalt
+            ) * 100,
+
+        gul:
+            (
+                lage.gul /
+                lage.totalt
+            ) * 100,
+
+        rod:
+            (
+                lage.rod /
+                lage.totalt
+            ) * 100,
+
+        otränad:
+            (
+                lage.otränad /
+                lage.totalt
+            ) * 100,
+
+        tackning:
+            (
+                (
+                    lage.totalt -
+                    lage.otränad
+                ) /
+                lage.totalt
+            ) * 100
+
+    };
+
+}
+
+
+// ========================================
+// HÄMTA ÖVERGRIPANDE STATUS
+// ========================================
+
+function hamtaOvergripandeStatus() {
+
+    const data =
+        skapaUppfoljningsData();
+
+
+    const procent =
+        raknaProcentOvergripande();
+
+
+    return {
+
+        totalt:
+            data.length,
+
+
+        bla: {
+
+            antal:
+                data.filter(
+                    function(kombination) {
+
+                        return (
+                            kombination.farg ===
+                            "blå"
+                        );
+
+                    }
+                ).length,
+
+            procent:
+                procent.bla
+
+        },
+
+
+        gron: {
+
+            antal:
+                data.filter(
+                    function(kombination) {
+
+                        return (
+                            kombination.farg ===
+                            "grön"
+                        );
+
+                    }
+                ).length,
+
+            procent:
+                procent.gron
+
+        },
+
+
+        gul: {
+
+            antal:
+                data.filter(
+                    function(kombination) {
+
+                        return (
+                            kombination.farg ===
+                            "gul"
+                        );
+
+                    }
+                ).length,
+
+            procent:
+                procent.gul
+
+        },
+
+
+        rod: {
+
+            antal:
+                data.filter(
+                    function(kombination) {
+
+                        return (
+                            kombination.farg ===
+                            "röd"
+                        );
+
+                    }
+                ).length,
+
+            procent:
+                procent.rod
+
+        },
+
+
+        otränad: {
+
+            antal:
+                data.filter(
+                    function(kombination) {
+
+                        return (
+                            kombination.antalTraning ===
+                            0
+                        );
+
+                    }
+                ).length,
+
+            procent:
+                procent.otränad
+
+        },
+
+
+        tackning: {
+
+            antal:
+                data.filter(
+                    function(kombination) {
+
+                        return (
+                            kombination.antalTraning >
+                            0
+                        );
+
+                    }
+                ).length,
+
+            procent:
+                procent.tackning
+
+        }
+
+    };
+
+}
+
+
+// ========================================
+// ALLA KOMBINATIONER
+// ========================================
+
+function hamtaAllaKombinationerMedData() {
+
+    const data =
+        skapaUppfoljningsData();
+
+
+    return data.map(
+        function(kombination) {
+
+            return {
+
+                typ:
+                    kombination.typ,
+
+                fokus:
+                    kombination.fokus,
+
+                miljo:
+                    kombination.miljo,
+
+                niva:
+                    kombination.niva,
+
+                farg:
+                    kombination.farg,
+
+                senaste:
+                    kombination.senaste,
+
+                antalTraning:
+                    kombination.antalTraning
+
+            };
+
+        }
+    );
+
+}

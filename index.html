@@ -1,23 +1,16 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
 
     <title>Hundträning</title>
-    <link rel="stylesheet" href="style.css">
 </head>
 
 
 <body>
-
 
     <nav>
 
@@ -48,13 +41,9 @@
 
     <section id="start">
 
-        <h1>
-            Hundträning
-        </h1>
+        <h1>Hundträning</h1>
 
-        <h2>
-            Start
-        </h2>
+        <h2>Start</h2>
 
         <p>
             Välkommen till Hundträning
@@ -67,9 +56,7 @@
 
     <section id="ny-traning">
 
-        <h2>
-            Ny träning
-        </h2>
+        <h2>Ny träning</h2>
 
 
         <label for="date">
@@ -182,7 +169,6 @@
 
         <br>
 
-
         <button id="spara">
             Spara
         </button>
@@ -198,136 +184,6 @@
             Loggbok
         </h2>
 
-
-        <h3>
-            Filter
-        </h3>
-
-
-        <p>
-            Sök
-        </p>
-
-        <input
-            type="search"
-            id="loggbok-sok"
-            placeholder="Sök i loggboken..."
-        >
-
-
-        <p>
-            Typ
-        </p>
-
-        <select id="loggbok-typ">
-
-            <option value="">
-                Alla typer
-            </option>
-
-            <option value="Byggnadssök">
-                Byggnadssök
-            </option>
-
-            <option value="Fordonssök">
-                Fordonssök
-            </option>
-
-            <option value="Områdessök">
-                Områdessök
-            </option>
-
-            <option value="Bagagessök">
-                Bagagessök
-            </option>
-
-            <option value="Lydnad">
-                Lydnad
-            </option>
-
-            <option value="Konsol">
-                Konsol
-            </option>
-
-            <option value="Miljöträning">
-                Miljöträning
-            </option>
-
-        </select>
-
-
-        <p>
-            Fokus
-        </p>
-
-        <select
-            id="loggbok-fokus"
-            disabled
-        >
-
-            <option value="">
-                Alla fokus
-            </option>
-
-        </select>
-
-
-        <p>
-            Miljö
-        </p>
-
-        <select
-            id="loggbok-miljo"
-            disabled
-        >
-
-            <option value="">
-                Alla miljöer
-            </option>
-
-        </select>
-
-
-        <p>
-            Preparat
-        </p>
-
-        <select id="loggbok-preparat">
-
-            <option value="">
-                Alla preparat
-            </option>
-
-            <option value="Preparat 1">
-                Preparat 1
-            </option>
-
-            <option value="Preparat 2">
-                Preparat 2
-            </option>
-
-            <option value="Preparat 3">
-                Preparat 3
-            </option>
-
-        </select>
-
-
-        <br>
-
-
-        <button id="loggbok-rensa">
-            Rensa filter
-        </button>
-
-
-        <p>
-            <strong id="loggbok-resultat">
-                0 av 0 träningspass
-            </strong>
-        </p>
-
-
         <div id="loggbok-lista"></div>
 
     </section>
@@ -341,7 +197,6 @@
             Träningsdetaljer
         </h2>
 
-
         <div id="detalj-innehall"></div>
 
 
@@ -349,11 +204,9 @@
             Tillbaka
         </button>
 
-
         <button id="redigera">
             Redigera
         </button>
-
 
         <button id="radera">
             Radera
@@ -366,344 +219,508 @@
 
     <section id="uppfoljning">
 
-        <h2>
-            Uppföljning
-        </h2>
+
+        <div class="uppfoljning-header">
+
+            <h2>
+                Uppföljning
+            </h2>
+
+            <p>
+                Överblick över hundens träning och vad som bör prioriteras.
+            </p>
+
+        </div>
 
 
-        <!-- ÖVERGRIPANDE LÄGE -->
+        <!-- TOPP: PRIORITERING + ÖVERGRIPANDE LÄGE -->
 
-        <h3>
-            Övergripande läge
-        </h3>
+        <div class="dashboard-grid">
 
 
-        <p>
-            Antal träningspass:
-            <strong id="antal-traning">
-                0
-            </strong>
-        </p>
+            <!-- VAD BEHÖVER JAG TRÄNA PÅ -->
+
+            <div class="dashboard-card behov-card">
+
+                <div class="card-rubrik">
+
+                    <div>
+
+                        <span class="card-label">
+                            PRIORITERING
+                        </span>
+
+                        <h3>
+                            Vad behöver jag träna på?
+                        </h3>
+
+                    </div>
 
 
-        <p>
-            🔵 BP-klar:
-            <strong id="status-bla">
-                0 %
-            </strong>
-        </p>
+                    <span
+                        id="behov-antal"
+                        class="badge"
+                    >
+                        0
+                    </span>
+
+                </div>
 
 
-        <p>
-            🟢 Bra:
-            <strong id="status-gron">
-                0 %
-            </strong>
-        </p>
+                <div id="behover-tranas"></div>
+
+            </div>
 
 
-        <p>
-            🟡 På väg:
-            <strong id="status-gul">
-                0 %
-            </strong>
-        </p>
+            <!-- ÖVERGRIPANDE LÄGE -->
+
+            <div class="dashboard-card status-card">
+
+                <div class="card-rubrik">
+
+                    <div>
+
+                        <span class="card-label">
+                            ÖVERSIKT
+                        </span>
+
+                        <h3>
+                            Övergripande läge
+                        </h3>
+
+                    </div>
 
 
-        <p>
-            🔴 Behöver tränas:
-            <strong id="status-rod">
-                0 %
-            </strong>
-        </p>
+                    <strong
+                        id="antal-traning"
+                        class="stor-siffra"
+                    >
+                        0
+                    </strong>
+
+                </div>
 
 
-        <p>
-            ⚪ Otränad:
-            <strong id="status-otranad">
-                0 %
-            </strong>
-        </p>
+                <p class="subtext">
+                    träningspass totalt
+                </p>
 
 
-        <p>
-            Täckning:
-            <strong id="status-tackning">
-                0 / 0
-            </strong>
-        </p>
+                <div class="status-grid">
 
 
-        <hr>
+                    <div class="status-item status-bla">
+
+                        <span>
+                            BP-klar
+                        </span>
+
+                        <strong id="status-bla">
+                            0 %
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-item status-gron">
+
+                        <span>
+                            Bra
+                        </span>
+
+                        <strong id="status-gron">
+                            0 %
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-item status-gul">
+
+                        <span>
+                            På väg
+                        </span>
+
+                        <strong id="status-gul">
+                            0 %
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-item status-rod">
+
+                        <span>
+                            Behöver tränas
+                        </span>
+
+                        <strong id="status-rod">
+                            0 %
+                        </strong>
+
+                    </div>
+
+
+                    <div class="status-item status-neutral">
+
+                        <span>
+                            Otränad
+                        </span>
+
+                        <strong id="status-otranad">
+                            0 %
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="coverage">
+
+                    <span>
+                        Täckning
+                    </span>
+
+                    <strong id="status-tackning">
+                        0 / 0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+        </div>
 
 
         <!-- FILTER -->
 
-        <h3>
-            Filter
-        </h3>
+        <details class="info-section filter-section">
 
 
-        <p>
-            Typ
-        </p>
-
-        <select id="uppfoljning-typ">
-
-            <option value="">
-                Alla typer
-            </option>
-
-            <option value="Byggnadssök">
-                Byggnadssök
-            </option>
-
-            <option value="Fordonssök">
-                Fordonssök
-            </option>
-
-            <option value="Områdessök">
-                Områdessök
-            </option>
-
-            <option value="Bagagessök">
-                Bagagessök
-            </option>
-
-            <option value="Lydnad">
-                Lydnad
-            </option>
-
-            <option value="Konsol">
-                Konsol
-            </option>
-
-            <option value="Miljöträning">
-                Miljöträning
-            </option>
-
-        </select>
+            <summary>
+                Filter och detaljerad vy
+            </summary>
 
 
-        <p>
-            Fokus
-        </p>
-
-        <select
-            id="uppfoljning-fokus"
-            disabled
-        >
-
-            <option value="">
-                Alla fokus
-            </option>
-
-        </select>
+            <div class="details-content">
 
 
-        <p>
-            Miljö
-        </p>
+                <label for="uppfoljning-typ">
+                    Typ
+                </label>
 
-        <select
-            id="uppfoljning-miljo"
-            disabled
-        >
+                <select id="uppfoljning-typ">
 
-            <option value="">
-                Alla miljöer
-            </option>
+                    <option value="">
+                        Alla typer
+                    </option>
 
-        </select>
+                    <option value="Byggnadssök">
+                        Byggnadssök
+                    </option>
+
+                    <option value="Fordonssök">
+                        Fordonssök
+                    </option>
+
+                    <option value="Områdessök">
+                        Områdessök
+                    </option>
+
+                    <option value="Bagagessök">
+                        Bagagessök
+                    </option>
+
+                    <option value="Lydnad">
+                        Lydnad
+                    </option>
+
+                    <option value="Konsol">
+                        Konsol
+                    </option>
+
+                    <option value="Miljöträning">
+                        Miljöträning
+                    </option>
+
+                </select>
 
 
-        <br>
+                <label for="uppfoljning-fokus">
+                    Fokus
+                </label>
+
+                <select
+                    id="uppfoljning-fokus"
+                    disabled
+                >
+
+                    <option value="">
+                        Alla fokus
+                    </option>
+
+                </select>
 
 
-        <button id="uppfoljning-rensa">
-            Rensa filter
-        </button>
+                <label for="uppfoljning-miljo">
+                    Miljö
+                </label>
+
+                <select
+                    id="uppfoljning-miljo"
+                    disabled
+                >
+
+                    <option value="">
+                        Alla miljöer
+                    </option>
+
+                </select>
+
+
+                <button id="uppfoljning-rensa">
+                    Rensa filter
+                </button>
+
+
+            </div>
+
+        </details>
 
 
         <!-- FILTRERAT LÄGE -->
 
-        <h3>
-            Filtrerat läge
-        </h3>
+        <div class="dashboard-card filtered-card">
 
 
-        <p>
-            Kombinationer:
-            <strong id="filtrerat-antal-kombinationer">
-                0
-            </strong>
-        </p>
+            <div class="card-rubrik">
 
+                <div>
 
-        <p>
-            Täckning:
-            <strong id="filtrerat-tackning">
-                0 / 0
-            </strong>
-        </p>
+                    <span class="card-label">
+                        VALT URVAL
+                    </span>
 
+                    <h3>
+                        Filtrerat läge
+                    </h3>
 
-        <p>
-            Träningspass:
-            <strong id="filtrerat-traningar">
-                0
-            </strong>
-        </p>
+                </div>
 
+            </div>
 
-        <p>
-            Otränade:
-            <strong id="filtrerat-otranade">
-                0
-            </strong>
-        </p>
 
+            <div class="mini-stat-grid">
 
-        <p>
 
-            Nivå 1:
-            <strong id="filtrerat-niva1">
-                0
-            </strong>
+                <div>
 
-            ·
+                    <span>
+                        Kombinationer
+                    </span>
 
-            Nivå 2:
-            <strong id="filtrerat-niva2">
-                0
-            </strong>
+                    <strong id="filtrerat-antal-kombinationer">
+                        0
+                    </strong>
 
-            ·
+                </div>
 
-            Nivå 3:
-            <strong id="filtrerat-niva3">
-                0
-            </strong>
 
-            ·
+                <div>
 
-            Nivå 4:
-            <strong id="filtrerat-niva4">
-                0
-            </strong>
+                    <span>
+                        Täckning
+                    </span>
 
-            ·
+                    <strong id="filtrerat-tackning">
+                        0 / 0
+                    </strong>
 
-            Nivå 5:
-            <strong id="filtrerat-niva5">
-                0
-            </strong>
+                </div>
 
-        </p>
 
+                <div>
 
-        <hr>
+                    <span>
+                        Träningspass
+                    </span>
 
+                    <strong id="filtrerat-traningar">
+                        0
+                    </strong>
 
-        <!-- VAD BEHÖVER JAG TRÄNA PÅ -->
+                </div>
 
-        <h3>
-            Vad behöver jag träna på?
-        </h3>
 
+                <div>
 
-        <div id="behover-tranas"></div>
+                    <span>
+                        Otränade
+                    </span>
 
+                    <strong id="filtrerat-otranade">
+                        0
+                    </strong>
 
-        <!-- PREPARAT -->
+                </div>
 
-        <h3>
-            Preparat
-        </h3>
 
+            </div>
 
-        <div id="preparat-statistik"></div>
 
+            <div class="level-row">
 
-        <!-- TOTAL SÖKTRÄNING -->
+                <span>
+                    Nivå 1
+                    <strong id="filtrerat-niva1">
+                        0
+                    </strong>
+                </span>
 
-        <h3>
-            Total sökträning
-        </h3>
+                <span>
+                    Nivå 2
+                    <strong id="filtrerat-niva2">
+                        0
+                    </strong>
+                </span>
 
+                <span>
+                    Nivå 3
+                    <strong id="filtrerat-niva3">
+                        0
+                    </strong>
+                </span>
 
-        <div id="total-soktyper"></div>
+                <span>
+                    Nivå 4
+                    <strong id="filtrerat-niva4">
+                        0
+                    </strong>
+                </span>
 
+                <span>
+                    Nivå 5
+                    <strong id="filtrerat-niva5">
+                        0
+                    </strong>
+                </span>
 
-        <!-- SENAST TRÄNAT -->
+            </div>
 
-        <h3>
-            Senast tränat
-        </h3>
 
+        </div>
 
-        <div id="senast-tranat"></div>
 
+        <!-- MER INFORMATION -->
 
-        <!-- LÄNGST SEDAN TRÄNAT -->
+        <div class="extra-info">
 
-        <h3>
-            Längst sedan tränat
-        </h3>
 
+            <details class="info-section">
 
-        <div id="langst-sedan-tranat"></div>
+                <summary>
+                    Preparat
+                </summary>
 
+                <div
+                    id="preparat-statistik"
+                    class="details-content"
+                ></div>
 
-        <!-- OTRÄNADE -->
+            </details>
 
-        <h3>
-            Otränade
-        </h3>
 
+            <details class="info-section">
 
-        <p>
+                <summary>
+                    Total sökträning
+                </summary>
 
-            Antal otränade:
+                <div
+                    id="total-soktyper"
+                    class="details-content"
+                ></div>
 
-            <strong id="antal-otranade">
-                0
-            </strong>
+            </details>
 
-        </p>
 
+            <details class="info-section">
 
-        <div id="otranade"></div>
+                <summary>
+                    Senast tränat
+                </summary>
 
+                <div
+                    id="senast-tranat"
+                    class="details-content"
+                ></div>
 
-        <!-- UTVECKLING -->
+            </details>
 
-        <h3>
-            Utveckling över tid
-        </h3>
 
+            <details class="info-section">
 
-        <p>
-            Senaste 6 månaderna
-        </p>
+                <summary>
+                    Längst sedan tränat
+                </summary>
 
+                <div
+                    id="langst-sedan-tranat"
+                    class="details-content"
+                ></div>
 
-        <div id="utveckling-over-tid"></div>
+            </details>
 
 
-        <!-- VECKOSTATISTIK -->
+            <details class="info-section">
 
-        <h3>
-            Veckostatistik
-        </h3>
+                <summary>
 
+                    Otränade
 
-        <p>
-            Senaste 8 veckorna
-        </p>
+                    <span
+                        id="antal-otranade"
+                        class="summary-badge"
+                    >
+                        0
+                    </span>
 
+                </summary>
 
-        <div id="veckostatistik"></div>
+
+                <div
+                    id="otranade"
+                    class="details-content"
+                ></div>
+
+            </details>
+
+
+            <details class="info-section">
+
+                <summary>
+                    Utveckling över tid
+                </summary>
+
+
+                <div class="details-content">
+
+                    <p class="subtext">
+                        Senaste 6 månaderna
+                    </p>
+
+                    <div id="utveckling-over-tid"></div>
+
+                </div>
+
+            </details>
+
+
+        </div>
+
 
     </section>
 
