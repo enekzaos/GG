@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Hundträning</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+
+    <nav>
+
+        <button onclick="visaVy('start')">
+            Start
+        </button>
+
+        <button onclick="visaVy('ny-traning')">
+            Ny träning
+        </button>
+
+        <button onclick="visaVy('loggbok')">
+            Loggbok
+        </button>
+
+        <button onclick="visaVy('uppfoljning')">
+            Uppföljning
+        </button>
+
+        <button onclick="visaVy('installningar')">
+            Inställningar
+        </button>
+
+    </nav>
+
+
+    <!-- START -->
+
+    <section id="start">
+
+        <h1>
+            Hundträning
+        </h1>
+
+        <h2>
+            Start
+        </h2>
+
+        <p>
+            Välkommen till Hundträning
+        </p>
+
+    </section>
+
+
+    <!-- NY TRÄNING -->
+
+    <section id="ny-traning">
+
+        <h2>
+            Ny träning
+        </h2>
+
+
+        <label for="date">
+            Datum
+        </label>
+
+        <input
+            type="date"
+            id="date"
+        >
+
+
+        <p>
+            Typ
+        </p>
+
+        <select id="moment"></select>
+
+
+        <p>
+            Fokus
+        </p>
+
+        <select id="fokus"></select>
+
+
+        <p>
+            Miljö
+        </p>
+
+        <select id="miljo"></select>
+
+
+        <p>
+            Preparat
+        </p>
+
+        <select id="preparat"></select>
+
+
+        <p>
+            Tillämpat?
+        </p>
+
+        <select id="tillampat">
+
+            <option value="Ja">
+                Ja
+            </option>
+
+            <option value="Nej">
+                Nej
+            </option>
+
+        </select>
+
+
+        <p>
+            Resultat
+        </p>
+
+        <select id="resultat">
+
+            <option value="Godkänd">
+                Godkänd
+            </option>
+
+            <option value="Tränad">
+                Tränad
+            </option>
+
+            <option value="Behöver repeteras">
+                Behöver repeteras
+            </option>
+
+            <option value="Misslyckad">
+                Misslyckad
+            </option>
+
+        </select>
+
+
+        <p>
+            Kommentar
+        </p>
+
+        <textarea id="kommentar"></textarea>
+
+
+        <p>
+            Svårighetsgrad
+        </p>
+
+        <select id="svårighetsgrad">
+
+            <option value="Lätt">
+                Lätt
+            </option>
+
+            <option value="Mellan">
+                Mellan
+            </option>
+
+            <option value="Svår">
+                Svår
+            </option>
+
+        </select>
+
+
+        <br>
+
+
+        <button id="spara">
+            Spara
+        </button>
+
+    </section>
+
+
+    <!-- LOGGBOK -->
+
+    <section id="loggbok">
+
+        <h2>
+            Loggbok
+        </h2>
+
+
+        <h3>
+            Filter
+        </h3>
+
+
+        <p>
+            Sök
+        </p>
+
+        <input
+            type="search"
+            id="loggbok-sok"
+            placeholder="Sök i loggboken..."
+        >
+
+
+        <p>
+            Typ
+        </p>
+
+        <select id="loggbok-typ">
+
+            <option value="">
+                Alla typer
+            </option>
+
+            <option value="Byggnadssök">
+                Byggnadssök
+            </option>
+
+            <option value="Fordonssök">
+                Fordonssök
+            </option>
+
+            <option value="Områdessök">
+                Områdessök
+            </option>
+
+            <option value="Bagagessök">
+                Bagagessök
+            </option>
+
+            <option value="Lydnad">
+                Lydnad
+            </option>
+
+            <option value="Konsol">
+                Konsol
+            </option>
+
+            <option value="Miljöträning">
+                Miljöträning
+            </option>
+
+        </select>
+
+
+        <p>
+            Fokus
+        </p>
+
+        <select
+            id="loggbok-fokus"
+            disabled
+        >
+
+            <option value="">
+                Alla fokus
+            </option>
+
+        </select>
+
+
+        <p>
+            Miljö
+        </p>
+
+        <select
+            id="loggbok-miljo"
+            disabled
+        >
+
+            <option value="">
+                Alla miljöer
+            </option>
+
+        </select>
+
+
+        <p>
+            Preparat
+        </p>
+
+        <select id="loggbok-preparat">
+
+            <option value="">
+                Alla preparat
+            </option>
+
+            <option value="Preparat 1">
+                Preparat 1
+            </option>
+
+            <option value="Preparat 2">
+                Preparat 2
+            </option>
+
+            <option value="Preparat 3">
+                Preparat 3
+            </option>
+
+        </select>
+
+
+        <br>
+
+
+        <button id="loggbok-rensa">
+            Rensa filter
+        </button>
+
+
+        <p>
+            <strong id="loggbok-resultat">
+                0 av 0 träningspass
+            </strong>
+        </p>
+
+
+        <div id="loggbok-lista"></div>
+
+    </section>
+
+
+    <!-- TRÄNINGSDETALJ -->
+
+    <section id="traning-detalj">
+
+        <h2>
+            Träningsdetaljer
+        </h2>
+
+
+        <div id="detalj-innehall"></div>
+
+
+        <button onclick="visaVy('loggbok')">
+            Tillbaka
+        </button>
+
+
+        <button id="redigera">
+            Redigera
+        </button>
+
+
+        <button id="radera">
+            Radera
+        </button>
+
+    </section>
+
+
+    <!-- UPPFÖLJNING -->
+
+    <section id="uppfoljning">
+
+        <h2>
+            Uppföljning
+        </h2>
+
+
+        <!-- ÖVERGRIPANDE LÄGE -->
+
+        <h3>
+            Övergripande läge
+        </h3>
+
+
+        <p>
+            Antal träningspass:
+            <strong id="antal-traning">
+                0
+            </strong>
+        </p>
+
+
+        <p>
+            🔵 BP-klar:
+            <strong id="status-bla">
+                0 %
+            </strong>
+        </p>
+
+
+        <p>
+            🟢 Bra:
+            <strong id="status-gron">
+                0 %
+            </strong>
+        </p>
+
+
+        <p>
+            🟡 På väg:
+            <strong id="status-gul">
+                0 %
+            </strong>
+        </p>
+
+
+        <p>
+            🔴 Behöver tränas:
+            <strong id="status-rod">
+                0 %
+            </strong>
+        </p>
+
+
+        <p>
+            ⚪ Otränad:
+            <strong id="status-otranad">
+                0 %
+            </strong>
+        </p>
+
+
+        <p>
+            Täckning:
+            <strong id="status-tackning">
+                0 / 0
+            </strong>
+        </p>
+
+
+        <hr>
+
+
+        <!-- FILTER -->
+
+        <h3>
+            Filter
+        </h3>
+
+
+        <p>
+            Typ
+        </p>
+
+        <select id="uppfoljning-typ">
+
+            <option value="">
+                Alla typer
+            </option>
+
+            <option value="Byggnadssök">
+                Byggnadssök
+            </option>
+
+            <option value="Fordonssök">
+                Fordonssök
+            </option>
+
+            <option value="Områdessök">
+                Områdessök
+            </option>
+
+            <option value="Bagagessök">
+                Bagagessök
+            </option>
+
+            <option value="Lydnad">
+                Lydnad
+            </option>
+
+            <option value="Konsol">
+                Konsol
+            </option>
+
+            <option value="Miljöträning">
+                Miljöträning
+            </option>
+
+        </select>
+
+
+        <p>
+            Fokus
+        </p>
+
+        <select
+            id="uppfoljning-fokus"
+            disabled
+        >
+
+            <option value="">
+                Alla fokus
+            </option>
+
+        </select>
+
+
+        <p>
+            Miljö
+        </p>
+
+        <select
+            id="uppfoljning-miljo"
+            disabled
+        >
+
+            <option value="">
+                Alla miljöer
+            </option>
+
+        </select>
+
+
+        <br>
+
+
+        <button id="uppfoljning-rensa">
+            Rensa filter
+        </button>
+
+
+        <!-- FILTRERAT LÄGE -->
+
+        <h3>
+            Filtrerat läge
+        </h3>
+
+
+        <p>
+            Kombinationer:
+            <strong id="filtrerat-antal-kombinationer">
+                0
+            </strong>
+        </p>
+
+
+        <p>
+            Täckning:
+            <strong id="filtrerat-tackning">
+                0 / 0
+            </strong>
+        </p>
+
+
+        <p>
+            Träningspass:
+            <strong id="filtrerat-traningar">
+                0
+            </strong>
+        </p>
+
+
+        <p>
+            Otränade:
+            <strong id="filtrerat-otranade">
+                0
+            </strong>
+        </p>
+
+
+        <p>
+
+            Nivå 1:
+            <strong id="filtrerat-niva1">
+                0
+            </strong>
+
+            ·
+
+            Nivå 2:
+            <strong id="filtrerat-niva2">
+                0
+            </strong>
+
+            ·
+
+            Nivå 3:
+            <strong id="filtrerat-niva3">
+                0
+            </strong>
+
+            ·
+
+            Nivå 4:
+            <strong id="filtrerat-niva4">
+                0
+            </strong>
+
+            ·
+
+            Nivå 5:
+            <strong id="filtrerat-niva5">
+                0
+            </strong>
+
+        </p>
+
+
+        <hr>
+
+
+        <!-- VAD BEHÖVER JAG TRÄNA PÅ -->
+
+        <h3>
+            Vad behöver jag träna på?
+        </h3>
+
+
+        <div id="behover-tranas"></div>
+
+
+        <!-- PREPARAT -->
+
+        <h3>
+            Preparat
+        </h3>
+
+
+        <div id="preparat-statistik"></div>
+
+
+        <!-- TOTAL SÖKTRÄNING -->
+
+        <h3>
+            Total sökträning
+        </h3>
+
+
+        <div id="total-soktyper"></div>
+
+
+        <!-- SENAST TRÄNAT -->
+
+        <h3>
+            Senast tränat
+        </h3>
+
+
+        <div id="senast-tranat"></div>
+
+
+        <!-- LÄNGST SEDAN TRÄNAT -->
+
+        <h3>
+            Längst sedan tränat
+        </h3>
+
+
+        <div id="langst-sedan-tranat"></div>
+
+
+        <!-- OTRÄNADE -->
+
+        <h3>
+            Otränade
+        </h3>
+
+
+        <p>
+
+            Antal otränade:
+
+            <strong id="antal-otranade">
+                0
+            </strong>
+
+        </p>
+
+
+        <div id="otranade"></div>
+
+
+        <!-- UTVECKLING -->
+
+        <h3>
+            Utveckling över tid
+        </h3>
+
+
+        <p>
+            Senaste 6 månaderna
+        </p>
+
+
+        <div id="utveckling-over-tid"></div>
+
+
+        <!-- VECKOSTATISTIK -->
+
+        <h3>
+            Veckostatistik
+        </h3>
+
+
+        <p>
+            Senaste 8 veckorna
+        </p>
+
+
+        <div id="veckostatistik"></div>
+
+    </section>
+
+
+    <!-- INSTÄLLNINGAR -->
+
+    <section id="installningar">
+
+        <h2>
+            Inställningar
+        </h2>
+
+
+        <h3>
+            Data
+        </h3>
+
+
+        <button id="exportera">
+            Exportera data
+        </button>
+
+
+        <button id="importera">
+            Importera data
+        </button>
+
+
+        <input
+            type="file"
+            id="import-fil"
+            accept=".json"
+        >
+
+    </section>
+
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
